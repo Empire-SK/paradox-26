@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Raleway', sans-serif;
+  --font-heading: 'Montserrat', sans-serif;
+  
+  --color-arcade-neon-green: #00f0ff; /* Neon Cyan */
+  --color-arcade-neon-pink: #ff007f; /* Neon Pink */
+  --color-arcade-neon-blue: #00f0ff; /* Neon Cyan (fallback) */
+  --color-arcade-bg: transparent;
+}
+
+body {
+  margin: 0;
+  background-color: #050505;
+  color: white;
+  overflow-x: hidden;
+  font-family: var(--font-sans);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* CRT Scanline Effect */
+.crt::before {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%,
+    rgba(0, 0, 0, 0.25) 50%,
+    rgba(0, 0, 0, 0.25) 100%
+  );
+  background-size: 100% 4px;
+  z-index: 50;
+  pointer-events: none;
+}
+
+/* Glowing Border for Cards */
+.arcade-card {
+  position: relative;
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid var(--color-arcade-neon-green);
+  box-shadow: 0 0 10px var(--color-arcade-neon-green), inset 0 0 5px var(--color-arcade-neon-green);
+  transition: all 0.3s ease-in-out;
+}
+.arcade-card:hover {
+  box-shadow: 0 0 20px var(--color-arcade-neon-green), inset 0 0 15px var(--color-arcade-neon-green);
+  transform: scale(1.02);
+}
+
+/* Neon Text */
+.neon-text-green {
+  text-shadow: 0 0 5px var(--color-arcade-neon-green), 0 0 10px var(--color-arcade-neon-green);
+  color: var(--color-arcade-neon-green);
+}
+.neon-text-pink {
+  text-shadow: 0 0 5px var(--color-arcade-neon-pink), 0 0 10px var(--color-arcade-neon-pink);
+  color: var(--color-arcade-neon-pink);
+}
+.neon-text-blue {
+  text-shadow: 0 0 5px var(--color-arcade-neon-blue), 0 0 10px var(--color-arcade-neon-blue);
+  color: var(--color-arcade-neon-blue);
+}
+
+/* Arcade Button */
+.arcade-btn {
+  background-color: rgba(0, 0, 0, 0.6);
+  color: var(--color-arcade-neon-green);
+  border: 2px solid var(--color-arcade-neon-green);
+  box-shadow: 0 0 5px var(--color-arcade-neon-green), inset 0 0 5px var(--color-arcade-neon-green);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease-in-out;
+  border-radius: 9999px;
+  backdrop-filter: blur(4px);
+}
+.arcade-btn:hover {
+  background-color: var(--color-arcade-neon-green);
+  color: black;
+  box-shadow: 0 0 15px var(--color-arcade-neon-green);
+}
+
+/* Floating Animation for Logo */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Background Animation */
+@keyframes bg-pan {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animate-bg-pan {
+  animation: bg-pan 30s ease infinite;
+}
