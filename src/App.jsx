@@ -5,7 +5,6 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import EventDetails from './pages/EventDetails';
 import './index.css';
-import bgImage from './assets/bg.jpeg';
 import pdoxLogo from './assets/pdox.png';
 
 

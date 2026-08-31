@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import bgImage from '../assets/bg.png';
 
 const events = [
   { id: 'quiz', title: 'QUIZ', type: 'Knowledge Test', status: 'Register Nown' },
@@ -17,8 +18,18 @@ const events = [
 
 const EventsSection = () => {
   return (
-    <section id="events" className="min-h-screen w-full py-24 relative z-10">
-      <div className="w-full max-w-7xl mx-auto px-4">
+    <section 
+      id="events" 
+      className="min-h-screen w-full py-24 relative z-10"
+      style={{
+        backgroundImage: `url(${bgImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      <div className="absolute inset-0 bg-[#050505]/70 z-0"></div>
+      <div className="w-full max-w-7xl mx-auto px-4 relative z-10">
         <div className="text-center mb-16">
           <motion.div
             initial={{ opacity: 0, y: 30 }}

@@ -1,10 +1,20 @@
 import React from 'react';
 import heroImage from '../assets/logo.png';
+import bgImage from '../assets/bg.png';
 import Countdown from './Countdown';
 
 const HeroSection = () => {
   return (
-    <section className="min-h-screen flex items-center justify-center relative pt-32 w-full px-4 overflow-hidden">
+    <section 
+      className="min-h-screen flex items-center justify-center relative pt-32 w-full px-4 overflow-hidden"
+      style={{
+        backgroundImage: `url(${bgImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      <div className="absolute inset-0 bg-[#050505]/60 z-0"></div>
       <div className="relative z-10 flex flex-col items-center w-full max-w-7xl mx-auto text-center">
         <div className="mb-8 animate-float hover:scale-105 transition-transform duration-500">
           <img 
