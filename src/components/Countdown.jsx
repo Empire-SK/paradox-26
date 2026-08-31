@@ -45,7 +45,7 @@ const Countdown = ({ targetDate }) => {
   });
 
   return (
-    <div className="flex flex-wrap justify-center gap-4 sm:gap-6 my-8">
+    <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-4 sm:gap-6 my-8 mx-auto w-fit place-items-center">
       {timerComponents.length ? timerComponents : <span className="font-heading text-xl text-[var(--color-arcade-neon-pink)] neon-text-pink">GAME OVER!</span>}
     </div>
   );
