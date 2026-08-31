@@ -1,17 +1,18 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const events = [
-  { id: 'quiz', title: 'QUIZ', type: 'Knowledge Test', status: 'Coming Soon' },
-  { id: 'debate', title: 'DEBATE', type: 'Debate', status: 'Coming Soon' },
-  { id: 'pitch-perfect', title: 'PITCH PERFECT', type: 'Pitch Perfect', status: 'Coming Soon' },
-  { id: 'c-challenge', title: 'C CHALLENGE', type: 'Coding', status: 'Coming Soon' },
-  { id: 'single-prompt', title: 'SINGLE PROMPT', type: 'AI Prompting', status: 'Coming Soon' },
-  { id: 'code-relay', title: 'CODE RELAY', type: 'Coding', status: 'Coming Soon' },
-  { id: 'idea-pitching', title: 'IDEA PITCHING', type: 'Ideation', status: 'Coming Soon' },
-  { id: 'speed-typing', title: 'SPEED TYPING', type: 'Typing', status: 'Coming Soon' },
-  { id: 'valorant', title: 'VALORANT', type: 'Gaming', status: 'Coming Soon' },
-  { id: 'treasure-hunt', title: 'TREASURE HUNT', type: 'Mystery', status: 'Coming Soon' },
+  { id: 'quiz', title: 'QUIZ', type: 'Knowledge Test', status: 'Register Nown' },
+  { id: 'debate', title: 'DEBATE', type: 'Debate', status: 'Register Now' },
+  { id: 'pitch-perfect', title: 'PITCH PERFECT', type: 'Pitch Perfect', status: 'Register Now' },
+  { id: 'c-challenge', title: 'C CHALLENGE', type: 'Coding', status: 'Register Now' },
+  { id: 'single-prompt', title: 'SINGLE PROMPT', type: 'AI Prompting', status: 'Register Now' },
+  { id: 'code-relay', title: 'CODE RELAY', type: 'Coding', status: 'Register Now' },
+  { id: 'idea-pitching', title: 'IDEA PITCHING', type: 'Ideation', status: 'Register Now' },
+  { id: 'speed-typing', title: 'SPEED TYPING', type: 'Typing', status: 'Register Now' },
+  { id: 'valorant', title: 'VALORANT', type: 'Gaming', status: 'Register Now' },
+  { id: 'treasure-hunt', title: 'TREASURE HUNT', type: 'Mystery', status: 'Register Now' },
 ];
 
 const EventsSection = () => {
@@ -19,40 +20,57 @@ const EventsSection = () => {
     <section id="events" className="min-h-screen w-full py-24 relative z-10">
       <div className="w-full max-w-7xl mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-heading mb-8 neon-text-blue uppercase">
-            SELECT STAGE
-          </h2>
-          <p className="text-white font-heading text-xs md:text-sm max-w-2xl mx-auto leading-loose">
-            CHOOSE YOUR NEXT CHALLENGE. SURVIVAL IS NOT GUARANTEED.
-          </p>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, margin: "-50px" }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="text-5xl md:text-7xl font-heading mb-6 tracking-tight">
+              <span className="text-white">Events</span> <span className="text-gradient-pink-blue">Overview</span>
+            </h2>
+            <p className="text-gray-400 font-sans text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
+              Discover the future of tech. Choose your track and participate in cutting-edge challenges.
+            </p>
+          </motion.div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {events.map((event) => (
-            <Link to={`/events/${event.id}`} key={event.id} className="arcade-card p-6 flex flex-col items-center justify-center min-h-[300px] text-center group cursor-pointer no-underline">
-              
-              {/* Event Graphic Placeholder */}
-              <div className="w-24 h-24 mb-6 border-4 border-[var(--color-arcade-neon-green)] flex items-center justify-center group-hover:border-[var(--color-arcade-neon-pink)] transition-colors">
-                <span className="font-heading text-[var(--color-arcade-neon-green)] group-hover:text-[var(--color-arcade-neon-pink)] text-4xl">
-                  ?
-                </span>
-              </div>
+          {events.map((event, index) => (
+            <motion.div
+              key={event.id}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: false, margin: "-50px" }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="h-full"
+            >
+              <Link to={`/events/${event.id}`} className="tech-card-wrapper min-h-[320px] group cursor-pointer no-underline block h-full">
+              <div className="tech-card-inner flex flex-col items-center justify-center text-center p-8 transition-colors group-hover:bg-[#111116]">
+                
+                {/* Event Graphic Placeholder */}
+                <div className="w-20 h-20 mb-6 rounded-full bg-gradient-to-tr from-[var(--color-tech-primary)]/20 to-[var(--color-tech-secondary)]/20 border border-[var(--color-tech-primary)]/40 flex items-center justify-center group-hover:scale-110 group-hover:border-[var(--color-tech-primary)] transition-all duration-300 shadow-[0_0_15px_rgba(255,107,0,0.2)]">
+                  <span className="font-heading text-[var(--color-tech-primary)] text-2xl font-bold group-hover:neon-text-primary">
+                    {event.title.charAt(0)}
+                  </span>
+                </div>
 
-              <h3 className="font-heading text-white text-sm mb-4 leading-relaxed group-hover:text-[var(--color-arcade-neon-pink)]">
-                {event.title}
-              </h3>
-              
-              <p className="font-heading text-[var(--color-arcade-neon-blue)] text-[10px] mb-4">
-                TYPE: {event.type}
-              </p>
-              
-              <div className="mt-auto">
-                <span className="inline-block bg-[var(--color-arcade-neon-green)] text-black font-heading text-[8px] px-3 py-2 uppercase">
-                  {event.status}
-                </span>
+                <h3 className="font-heading text-white text-lg font-semibold mb-3 tracking-wide group-hover:text-[var(--color-tech-primary)] transition-colors">
+                  {event.title}
+                </h3>
+                
+                <p className="font-sans text-gray-400 text-xs mb-6 uppercase tracking-widest font-medium">
+                  {event.type}
+                </p>
+                
+                <div className="mt-auto">
+                  <span className="inline-block bg-[var(--color-tech-primary)]/10 text-[var(--color-tech-primary)] border border-[var(--color-tech-primary)]/30 font-sans text-[10px] px-4 py-1.5 rounded-full uppercase font-bold tracking-wider group-hover:bg-[var(--color-tech-primary)] group-hover:text-black transition-all">
+                    {event.status}
+                  </span>
+                </div>
               </div>
-              
-            </Link>
+              </Link>
+            </motion.div>
           ))}
         </div>
       </div>

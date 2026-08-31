@@ -1,18 +1,20 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Jura:wght@700&display=swap');
 
 @theme {
-  --font-sans: 'Raleway', sans-serif;
-  --font-heading: 'Montserrat', sans-serif;
+  --font-sans: 'Inter', 'Raleway', sans-serif;
+  --font-heading: "Bebas Neue", sans-serif;
   
-  --color-arcade-neon-green: #00f0ff; /* Neon Cyan */
-  --color-arcade-neon-pink: #ff007f; /* Neon Pink */
-  --color-arcade-neon-blue: #00f0ff; /* Neon Cyan (fallback) */
-  --color-arcade-bg: transparent;
+  --color-tech-primary: #02e7fd; /* Techcon Cyan */
+  --color-tech-secondary: #782dff; /* Techcon Purple */
+  --color-tech-accent: #ff0055; /* Hot Pink */
+  --color-tech-bg: #111418; /* Dark Slate Grey */
+  --color-tech-surface: rgba(17, 20, 24, 0.8);
 }
 
 body {
   margin: 0;
-  background-color: #050505;
+  background-color: var(--color-tech-bg);
   color: white;
   overflow-x: hidden;
   font-family: var(--font-sans);
@@ -22,72 +24,83 @@ html {
   scroll-behavior: smooth;
 }
 
-/* CRT Scanline Effect */
-.crt::before {
-  content: " ";
-  display: block;
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  background: linear-gradient(
-    rgba(18, 16, 16, 0) 50%,
-    rgba(0, 0, 0, 0.25) 50%,
-    rgba(0, 0, 0, 0.25) 100%
-  );
-  background-size: 100% 4px;
-  z-index: 50;
-  pointer-events: none;
+/* Glassmorphism Surface */
+.glass-panel {
+  background: rgba(17, 20, 24, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Glowing Border for Cards */
-.arcade-card {
+/* Static Cyan Border Card */
+.tech-card-wrapper {
   position: relative;
-  background: rgba(0, 0, 0, 0.8);
-  border: 2px solid var(--color-arcade-neon-green);
-  box-shadow: 0 0 10px var(--color-arcade-neon-green), inset 0 0 5px var(--color-arcade-neon-green);
-  transition: all 0.3s ease-in-out;
+  border-radius: 12px;
+  background: var(--color-tech-primary);
+  padding: 1.5px;
+  transition: all 0.3s ease;
+  z-index: 1;
 }
-.arcade-card:hover {
-  box-shadow: 0 0 20px var(--color-arcade-neon-green), inset 0 0 15px var(--color-arcade-neon-green);
-  transform: scale(1.02);
+
+.tech-card-inner {
+  background: var(--color-tech-bg);
+  border-radius: 11px;
+  height: 100%;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+.tech-card-wrapper:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 -10px 30px -10px rgba(255, 0, 122, 0.1), 0 10px 30px -10px rgba(0, 229, 255, 0.1);
+}
+
+/* Gradient Text matching the image */
+.text-gradient-pink-blue {
+  background: linear-gradient(90deg, #ff007a, #00e5ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* Neon Text */
-.neon-text-green {
-  text-shadow: 0 0 5px var(--color-arcade-neon-green), 0 0 10px var(--color-arcade-neon-green);
-  color: var(--color-arcade-neon-green);
+.neon-text-primary {
+  text-shadow: 0 0 10px rgba(2, 231, 253, 0.6);
+  color: var(--color-tech-primary);
 }
-.neon-text-pink {
-  text-shadow: 0 0 5px var(--color-arcade-neon-pink), 0 0 10px var(--color-arcade-neon-pink);
-  color: var(--color-arcade-neon-pink);
-}
-.neon-text-blue {
-  text-shadow: 0 0 5px var(--color-arcade-neon-blue), 0 0 10px var(--color-arcade-neon-blue);
-  color: var(--color-arcade-neon-blue);
+.neon-text-secondary {
+  text-shadow: 0 0 10px rgba(120, 45, 255, 0.6);
+  color: var(--color-tech-secondary);
 }
 
-/* Arcade Button */
-.arcade-btn {
-  background-color: rgba(0, 0, 0, 0.6);
-  color: var(--color-arcade-neon-green);
-  border: 2px solid var(--color-arcade-neon-green);
-  box-shadow: 0 0 5px var(--color-arcade-neon-green), inset 0 0 5px var(--color-arcade-neon-green);
+/* Modern Button */
+.tech-btn {
+  background: rgba(255, 255, 255, 0.03);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 12px 28px;
+  border-radius: 9999px; /* Pill shape */
   text-transform: uppercase;
   font-weight: 600;
-  letter-spacing: 0.05em;
-  transition: all 0.2s ease-in-out;
-  border-radius: 9999px;
-  backdrop-filter: blur(4px);
-}
-.arcade-btn:hover {
-  background-color: var(--color-arcade-neon-green);
-  color: black;
-  box-shadow: 0 0 15px var(--color-arcade-neon-green);
+  letter-spacing: 1.5px;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: pointer;
+  text-decoration: none;
 }
 
-/* Floating Animation for Logo */
+.tech-btn:hover {
+  background-color: white;
+  color: black;
+  border-color: white;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+/* Floating Animation */
 @keyframes float {
   0% { transform: translateY(0px); }
   50% { transform: translateY(-10px); }

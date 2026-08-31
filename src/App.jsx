@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import Home from './pages/Home';
 import EventDetails from './pages/EventDetails';
 import './index.css';
@@ -116,14 +117,12 @@ function App() {
       <ScrollToTop />
       <Navbar />
 
-      {/* Background Image with Dark Overlay */}
-      <div
-        className="fixed inset-0 w-full h-full pointer-events-none z-[-2] bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `url(${bgImage})`,
-        }}
-      >
-        <div className="absolute inset-0 bg-black/60"></div>
+      {/* TechCon26 Style Animated Background */}
+      <div className="fixed inset-0 w-full h-full pointer-events-none z-[-2] bg-[#030305] overflow-hidden">
+        {/* Purple drifting glow (similar to site-wave--back) */}
+        <div className="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vw] bg-[radial-gradient(circle,rgba(120,45,255,0.12)_0%,transparent_60%)] animate-float rounded-full mix-blend-screen pointer-events-none"></div>
+        {/* Cyan drifting glow (similar to site-wave--front) */}
+        <div className="absolute bottom-[-20%] right-[-10%] w-[70vw] h-[70vw] bg-[radial-gradient(circle,rgba(2,231,253,0.12)_0%,transparent_60%)] animate-float rounded-full mix-blend-screen pointer-events-none" style={{ animationDelay: '-2s', animationDuration: '6s' }}></div>
       </div>
 
       <Routes>
@@ -131,11 +130,7 @@ function App() {
         <Route path="/events/:eventId" element={<EventDetails />} />
       </Routes>
 
-      <footer className="w-full text-center py-8 border-t-4 border-[var(--color-arcade-neon-green)] bg-black/80 mt-20">
-        <p className="font-heading text-[10px] text-white/70">
-          © 2025 PARADOX. ALL RIGHTS RESERVED.
-        </p>
-      </footer>
+      <Footer />
     </div>
   );
 }

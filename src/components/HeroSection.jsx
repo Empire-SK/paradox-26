@@ -22,11 +22,13 @@ const HeroSection = () => {
 
         
         <div className="flex flex-col sm:flex-row items-center justify-center gap-6 w-full max-w-sm sm:max-w-none mx-auto">
-          <a href="#events" className="inline-block text-center no-underline arcade-btn font-heading text-sm px-8 py-4 w-full sm:w-auto hover:bg-[var(--color-arcade-neon-green)] hover:text-black hover:border-[var(--color-arcade-neon-green)] hover:shadow-[0_0_15px_var(--color-arcade-neon-green)]">
+          <a href="#events" className="tech-btn w-full sm:w-auto group font-heading">
             REGISTER NOW
+            <span className="group-hover:translate-x-1 transition-transform">→</span>
           </a>
-          <a href="#about" className="inline-block text-center no-underline arcade-btn font-heading text-sm px-8 py-4 w-full sm:w-auto hover:bg-[var(--color-arcade-neon-blue)] hover:text-black hover:border-[var(--color-arcade-neon-blue)] hover:shadow-[0_0_15px_var(--color-arcade-neon-blue)] text-[var(--color-arcade-neon-blue)] border-[var(--color-arcade-neon-blue)] shadow-[0_0_5px_var(--color-arcade-neon-blue),inset_0_0_5px_var(--color-arcade-neon-blue)]">
+          <a href="#about" className="tech-btn w-full sm:w-auto group font-heading">
             LEARN MORE
+            <span className="group-hover:translate-x-1 transition-transform">→</span>
           </a>
         </div>
       </div>

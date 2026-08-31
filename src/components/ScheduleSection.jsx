@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import { motion, useScroll, useSpring } from 'framer-motion';
 
 const scheduleData = [
   { time: '09:30 AM', title: 'INAUGURATION', location: 'Main Stage', desc: 'Opening ceremony with keynote speakers' },
@@ -17,111 +17,67 @@ const ScheduleSection = () => {
   const smoothProgress = useSpring(scrollYProgress, { stiffness: 50, damping: 20 });
 
   return (
-    <section id="schedule" className="w-full py-24 relative z-10 overflow-hidden bg-black/80">
+    <section id="schedule" className="w-full py-24 relative z-10 overflow-hidden bg-transparent">
       <div className="w-full max-w-6xl mx-auto px-4 relative">
         <div className="text-center mb-24">
-          <h2 className="text-3xl md:text-5xl font-heading mb-4 text-white uppercase neon-text-blue">
-            Event Schedule
+          <h2 className="text-4xl md:text-6xl font-heading mb-6 tracking-tight">
+            Schedule Overview
           </h2>
-          <p className="text-white/70 font-heading tracking-widest text-sm uppercase">Scroll down to ride the wave</p>
+          <p className="text-gray-400 font-sans text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
+            Plan your day. Stay ahead of the curve.
+          </p>
         </div>
 
         <div className="relative" ref={containerRef}>
-          {/* Desktop Curved SVG Path */}
-          <div className="hidden md:block absolute top-[10%] left-0 w-full h-[80%] pointer-events-none z-0">
-            <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 1000 1000">
-              {/* Background path (faded) */}
-              <path
-                d="M 200 0 C 200 300, 800 200, 800 500 C 800 800, 200 700, 200 1000"
-                fill="transparent"
-                stroke="rgba(0, 240, 255, 0.1)"
-                strokeWidth="6"
-              />
-              {/* Animated drawing path */}
-              <motion.path
-                d="M 200 0 C 200 300, 800 200, 800 500 C 800 800, 200 700, 200 1000"
-                fill="transparent"
-                stroke="var(--color-arcade-neon-blue)"
-                strokeWidth="10"
-                style={{ pathLength: smoothProgress }}
-                className="drop-shadow-[0_0_15px_var(--color-arcade-neon-blue)]"
-              />
-            </svg>
+          {/* Vertical Glowing Timeline */}
+          <div className="absolute left-[1.5rem] md:left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-transparent via-[var(--color-tech-secondary)]/20 to-transparent -translate-x-1/2">
+            <motion.div 
+              className="w-full bg-[var(--color-tech-primary)] shadow-[0_0_15px_rgba(0,229,255,0.8)] origin-top"
+              style={{ height: '100%', scaleY: smoothProgress }}
+            />
           </div>
 
-          {/* Mobile Straight Path */}
-          <div className="block md:hidden absolute top-0 left-8 w-1 h-full pointer-events-none z-0">
-            <div className="w-full h-full bg-[rgba(0,240,255,0.1)] relative">
-              <motion.div
-                className="absolute top-0 left-0 w-full bg-[var(--color-arcade-neon-blue)] shadow-[0_0_10px_var(--color-arcade-neon-blue)] origin-top"
-                style={{ height: '100%', scaleY: smoothProgress }}
-              />
-            </div>
-          </div>
-
-          <div className="relative w-full flex flex-col justify-between min-h-[1200px] z-10">
+          <div className="relative w-full flex flex-col gap-12 z-10">
             {scheduleData.map((item, index) => {
               const isRight = index % 2 !== 0;
-
-              // Node position offsets to match the SVG curve visually
-              const nodePositions = [
-                'md:left-[20%]', // Start
-                'md:left-[80%]', // Middle
-                'md:left-[20%]'  // End
-              ];
-
-              const nodePos = nodePositions[index];
 
               return (
                 <motion.div
                   key={index}
-                  initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  initial={{ opacity: 0, y: 50, x: isRight ? 50 : -50 }}
+                  whileInView={{ opacity: 1, y: 0, x: 0 }}
                   viewport={{ once: false, margin: "-100px" }}
                   transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
                   className={`relative flex items-center justify-start md:justify-center w-full`}
                 >
                   {/* Timeline Node */}
-                  <div className={`absolute left-[1.3rem] -translate-x-1/2 md:translate-x-[-50%] ${nodePos} w-8 h-8 bg-black/80 border-4 border-white rounded-full shadow-[0_0_20px_var(--color-arcade-neon-blue)] z-20 transition-all duration-500 hover:scale-150 hover:bg-[var(--color-arcade-neon-blue)]`}></div>
+                  <div className={`absolute left-[1.5rem] md:left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-[var(--color-tech-bg)] border-[3px] border-[var(--color-tech-primary)] shadow-[0_0_15px_rgba(0,229,255,0.6)] z-20 transition-transform duration-300 hover:scale-150`}></div>
 
-                  {/* Polaroid Card */}
-                  <div className={`w-full pl-20 pr-4 md:px-0 md:w-[35%] flex ${isRight ? 'md:ml-auto md:mr-[10%]' : 'md:mr-auto md:ml-[10%]'}`}>
-
-                    <div className="w-full bg-black/80 text-black p-4 pb-8 transform hover:scale-105 hover:rotate-2 transition-all duration-300 shadow-[8px_8px_0px_var(--color-arcade-neon-pink)] relative mt-8 md:mt-0">
-
-                      {/* Pushpin */}
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-blue-800 shadow-md border-2 border-white shadow-black/50 z-30 flex items-center justify-center">
-                        <div className="w-2 h-2 rounded-full bg-blue-400"></div>
+                  {/* Tech Card */}
+                  <div className={`w-full pl-16 pr-2 md:px-0 md:w-[45%] flex ${isRight ? 'md:ml-auto md:mr-8' : 'md:mr-auto md:ml-8'}`}>
+                    
+                    <div className="glass-panel w-full p-6 md:p-8 rounded-xl border border-[var(--color-tech-secondary)]/30 hover:border-[var(--color-tech-primary)]/50 transition-colors group relative overflow-hidden">
+                      {/* Subtle hover gradient background */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-tech-primary)]/5 to-[var(--color-tech-secondary)]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                      
+                      <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-4 mb-4">
+                        <span className="inline-block bg-[var(--color-tech-secondary)]/20 text-[var(--color-tech-primary)] font-sans text-sm font-bold px-3 py-1 rounded-md border border-[var(--color-tech-secondary)]/50 uppercase tracking-widest shadow-[0_0_10px_rgba(112,0,255,0.2)]">
+                          {item.time}
+                        </span>
+                        <h3 className="font-heading text-white text-xl md:text-2xl font-semibold tracking-wide">
+                          {item.title}
+                        </h3>
                       </div>
-
-                      {/* Photo Area */}
-                      <div className="bg-black/80 w-full aspect-[4/3] p-4 mb-4 relative overflow-hidden flex flex-col justify-center items-center border border-gray-300 shadow-inner">
-                        <div className="absolute inset-0 pointer-events-none opacity-20"
-                          style={{
-                            backgroundImage: 'linear-gradient(var(--color-arcade-neon-green) 1px, transparent 1px), linear-gradient(90deg, var(--color-arcade-neon-green) 1px, transparent 1px)',
-                            backgroundSize: '15px 15px'
-                          }}></div>
-
-                        <div className="relative z-10 text-center">
-                          <div className="mb-2 inline-block bg-[var(--color-arcade-neon-pink)] text-white font-heading text-xs px-3 py-1 font-bold uppercase tracking-widest shadow-[0_0_10px_var(--color-arcade-neon-pink)]">
-                            {item.time}
-                          </div>
-                          <h3 className="font-heading text-white text-xl uppercase tracking-wider text-shadow-md">
-                            {item.title}
-                          </h3>
-                        </div>
-                      </div>
-
-                      {/* Caption Area */}
-                      <div className="text-center px-2">
-                        <p className="font-heading font-bold text-sm uppercase tracking-wider text-black/80">
+                      
+                      <div className="relative z-10">
+                        <p className="font-sans font-medium text-[var(--color-tech-primary)] text-sm uppercase tracking-wider mb-2 flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-[var(--color-tech-primary)] animate-pulse" />
                           {item.location}
                         </p>
-                        <p className="font-heading text-xs text-gray-500 mt-2 lowercase">
+                        <p className="font-sans text-gray-400 text-sm leading-relaxed">
                           {item.desc}
                         </p>
                       </div>
-
                     </div>
                   </div>
                 </motion.div>

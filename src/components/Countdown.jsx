@@ -33,11 +33,11 @@ const Countdown = ({ targetDate }) => {
     }
 
     timerComponents.push(
-      <div key={interval} className="flex flex-col items-center justify-center bg-black/80 border-2 border-[var(--color-arcade-neon-green)] p-3 sm:p-4 rounded-lg shadow-[0_0_10px_var(--color-arcade-neon-green)] min-w-[70px] sm:min-w-[90px]">
-        <span className="font-heading text-lg sm:text-2xl neon-text-green mb-2 text-[var(--color-arcade-neon-green)]">
+      <div key={interval} className="flex flex-col items-center justify-center bg-[#050505]/60 backdrop-blur-sm border border-white/40 p-4 rounded-xl min-w-[80px] sm:min-w-[100px] aspect-square">
+        <span className="font-sans text-3xl sm:text-4xl text-white font-semibold mb-2 tracking-wide">
           {timeLeft[interval].toString().padStart(2, '0')}
         </span>
-        <span className="font-heading text-[8px] sm:text-[10px] text-white uppercase tracking-widest">
+        <span className="font-sans text-[10px] sm:text-[11px] text-white/90 uppercase tracking-widest font-medium">
           {interval}
         </span>
       </div>

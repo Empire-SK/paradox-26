@@ -14,6 +14,18 @@ const eventData = {
       { name: 'BOOMIKA', phone: '7034958002' }
     ]
   },
+  'c-challenge': {
+    title: 'C CHALLENGE',
+    date: '7/10/2025',
+    time: '9:45 AM - 11:45 AM Final: 12:15 PM - 12:30 PM',
+    venue: 'CSLH5(S7 CSE A), Main Stage',
+    prizePool: '2000',
+    posterUrl: 'https://paradox25.netlify.app/_next/image?url=%2Fposters%2Fcchallenge.png&w=1920&q=75',
+    contacts: [
+      { name: 'BHAVYA', phone: '7510695281' },
+      { name: 'BOOMIKA', phone: '7034958002' }
+    ]
+  },
   // Add other events here later
 };
 
@@ -23,22 +35,22 @@ const EventDetails = () => {
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-24 flex flex-col items-center min-h-screen text-white font-sans">
-      
+
       {/* Title */}
       <div className="text-center mb-10 w-full">
         <h1 className="text-4xl md:text-5xl font-black uppercase tracking-wider text-white" style={{ fontFamily: 'var(--font-arcade), monospace' }}>
           {event.title}
         </h1>
       </div>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full max-w-5xl">
-        
+
         {/* Left Column - Poster */}
         <div className="bg-[#0f1519] border border-[#1f2933] rounded-xl p-4 flex items-center justify-center">
           <div className="bg-[#1a2128] rounded-lg overflow-hidden w-full h-full min-h-[400px] flex items-center justify-center relative">
-            <img 
-              src={event.posterUrl} 
-              alt={event.title} 
+            <img
+              src={event.posterUrl}
+              alt={event.title}
               className="object-contain w-full h-full absolute inset-0"
             />
           </div>
@@ -46,16 +58,16 @@ const EventDetails = () => {
 
         {/* Right Column - Details */}
         <div className="flex flex-col gap-6">
-          
+
           {/* Event Details Box */}
           <div className="bg-[#0f1519] border border-[#1f2933] rounded-xl p-6 relative">
             {/* Top-left corner accent */}
             <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-white/50"></div>
-            
+
             <h2 className="text-white font-bold mb-6 tracking-wider uppercase text-sm" style={{ fontFamily: 'var(--font-arcade), monospace' }}>
               EVENT DETAILS
             </h2>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-[#1a2128] rounded-md p-4">
                 <h4 className="text-white/80 text-xs font-bold mb-2 uppercase tracking-wide" style={{ fontFamily: 'var(--font-arcade), monospace' }}>DATE</h4>
@@ -86,7 +98,7 @@ const EventDetails = () => {
                 FOR ANY QUERIES REGARDING {event.title}
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {event.contacts.map((contact, idx) => (
                 <div key={idx} className="bg-[#1a2128] rounded-md p-4 text-center">
@@ -108,7 +120,7 @@ const EventDetails = () => {
               GUIDELINES
             </button>
           </div>
-          
+
         </div>
       </div>
 
@@ -118,7 +130,7 @@ const EventDetails = () => {
           ← BACK TO EVENTS
         </Link>
       </div>
-      
+
     </div>
   );
 };
