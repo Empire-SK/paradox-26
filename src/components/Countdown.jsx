@@ -33,11 +33,11 @@ const Countdown = ({ targetDate }) => {
     }
 
     timerComponents.push(
-      <div key={interval} className="flex flex-col items-center justify-center bg-[#050505]/60 backdrop-blur-sm border border-white/40 p-4 rounded-xl min-w-[80px] sm:min-w-[100px] aspect-square">
-        <span className="font-sans text-3xl sm:text-4xl text-white font-semibold mb-2 tracking-wide">
+      <div key={interval} className="flux-card flex flex-col items-center justify-center p-4 min-w-[80px] sm:min-w-[100px] aspect-square">
+        <span className="font-sans text-3xl sm:text-4xl text-[var(--color-primary)] font-semibold mb-1 tracking-wide">
           {timeLeft[interval].toString().padStart(2, '0')}
         </span>
-        <span className="font-sans text-[10px] sm:text-[11px] text-white/90 uppercase tracking-widest font-medium">
+        <span className="font-sans text-[10px] sm:text-[11px] text-gray-400 uppercase tracking-widest font-medium">
           {interval}
         </span>
       </div>
@@ -45,8 +45,8 @@ const Countdown = ({ targetDate }) => {
   });
 
   return (
-    <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-4 sm:gap-6 my-8 mx-auto w-fit place-items-center">
-      {timerComponents.length ? timerComponents : <span className="font-heading text-xl text-[var(--color-arcade-neon-pink)] neon-text-pink">GAME OVER!</span>}
+    <div className="flex flex-wrap justify-center gap-4 sm:gap-6 my-4 w-full">
+      {timerComponents.length ? timerComponents : <span className="font-sans text-xl text-[var(--color-primary)] font-bold">GAME OVER!</span>}
     </div>
   );
 };

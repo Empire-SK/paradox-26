@@ -1,22 +1,24 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Jura:wght@700&display=swap');
 
 @theme {
-  --font-sans: 'Inter', 'Raleway', sans-serif;
-  --font-heading: "Bebas Neue", sans-serif;
+  --font-sans: 'Inter', sans-serif;
+  --font-serif: 'Playfair Display', serif;
   
-  --color-tech-primary: #02e7fd; /* Techcon Cyan */
-  --color-tech-secondary: #782dff; /* Techcon Purple */
-  --color-tech-accent: #ff0055; /* Hot Pink */
-  --color-tech-bg: #111418; /* Dark Slate Grey */
-  --color-tech-surface: rgba(17, 20, 24, 0.8);
+  --color-primary: #FF3300; /* Vibrant Red/Orange */
+  --color-secondary: #FF6B00; /* Brighter Orange */
+  --color-bg-dark: #070707; 
+  --color-surface: #121212;
+  --color-surface-light: rgba(255, 255, 255, 0.05);
 }
 
-body {
+html, body {
   margin: 0;
-  background-color: var(--color-tech-bg);
-  color: white;
+  padding: 0;
+  background-color: var(--color-bg-dark);
+  color: #FAFAFA;
   overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
   font-family: var(--font-sans);
 }
 
@@ -24,66 +26,99 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Glassmorphism Surface */
-.glass-panel {
-  background: rgba(17, 20, 24, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+/* Base styles for Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.text-accent-serif {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  color: #a3a3a3;
+}
+
+/* Glassmorphism / Frosted Cards - High End */
+.flux-card {
+  background: linear-gradient(145deg, rgba(20, 20, 20, 0.9) 0%, rgba(10, 10, 10, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
+    0 10px 30px -10px rgba(0, 0, 0, 0.8);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+  position: relative;
 }
 
-/* Static Cyan Border Card */
-.tech-card-wrapper {
-  position: relative;
-  border-radius: 12px;
-  background: var(--color-tech-primary);
-  padding: 1.5px;
+.flux-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.85%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22 opacity=%220.03%22/%3E%3C/svg%3E');
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.flux-card:hover {
+  border-color: rgba(255, 51, 0, 0.4);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.2),
+    0 20px 40px -10px rgba(255, 51, 0, 0.2);
+  transform: translateY(-4px) scale(1.01);
+}
+
+.flux-card-glow {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(255,51,0,0.2) 0%, rgba(255,51,0,0) 70%);
+  border-radius: 50%;
+  top: -100px;
+  right: -100px;
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity 0.5s ease;
+}
+
+/* Modern Pill Button */
+.flux-btn-primary {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: white;
+  padding: 12px 28px;
+  border-radius: 9999px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
   transition: all 0.3s ease;
-  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 4px 15px rgba(255, 51, 0, 0.3);
+  text-decoration: none;
 }
 
-.tech-card-inner {
-  background: var(--color-tech-bg);
-  border-radius: 11px;
-  height: 100%;
-  width: 100%;
-  position: relative;
-  z-index: 2;
+.flux-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 51, 0, 0.4);
 }
 
-.tech-card-wrapper:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 -10px 30px -10px rgba(255, 0, 122, 0.1), 0 10px 30px -10px rgba(0, 229, 255, 0.1);
-}
-
-/* Gradient Text matching the image */
-.text-gradient-pink-blue {
-  background: linear-gradient(90deg, #ff007a, #00e5ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Neon Text */
-.neon-text-primary {
-  text-shadow: 0 0 10px rgba(2, 231, 253, 0.6);
-  color: var(--color-tech-primary);
-}
-.neon-text-secondary {
-  text-shadow: 0 0 10px rgba(120, 45, 255, 0.6);
-  color: var(--color-tech-secondary);
-}
-
-/* Modern Button */
-.tech-btn {
-  background: rgba(255, 255, 255, 0.03);
+.flux-btn-secondary {
+  background: transparent;
   color: white;
   border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 12px 28px;
-  border-radius: 9999px; /* Pill shape */
-  text-transform: uppercase;
-  font-weight: 600;
-  letter-spacing: 1.5px;
+  border-radius: 9999px;
+  font-weight: 500;
+  font-size: 0.95rem;
   transition: all 0.3s ease;
   display: inline-flex;
   align-items: center;
@@ -93,14 +128,32 @@ html {
   text-decoration: none;
 }
 
-.tech-btn:hover {
-  background-color: white;
-  color: black;
-  border-color: white;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+.flux-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
-/* Floating Animation */
+/* Text Gradients */
+.text-gradient-orange {
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Background Gradients */
+.bg-glow-orange {
+  position: absolute;
+  width: 60vw;
+  height: 60vw;
+  background: radial-gradient(circle, rgba(255,51,0,0.15) 0%, rgba(255,107,0,0.05) 40%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(60px);
+  z-index: -1;
+}
+
+/* Animations */
 @keyframes float {
   0% { transform: translateY(0px); }
   50% { transform: translateY(-10px); }
@@ -110,12 +163,10 @@ html {
   animation: float 4s ease-in-out infinite;
 }
 
-/* Background Animation */
-@keyframes bg-pan {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 0.4; }
 }
-.animate-bg-pan {
-  animation: bg-pan 30s ease infinite;
+.animate-pulse-slow {
+  animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

@@ -4,10 +4,9 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import EventDetails from './pages/EventDetails';
+import AdminPage from './pages/AdminPage';
 import './index.css';
 import pdoxLogo from './assets/pdox.png';
-
-
 const ScrollToTop = () => {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -20,94 +19,58 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [logs, setLogs] = useState([]);
 
   useEffect(() => {
-    // Simulate loading progress over ~5 seconds
+    // Simulate loading progress over ~2 seconds
     const interval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) return 100;
-        return prev + Math.floor(Math.random() * 5) + 2; // Slower increments
+        return prev + Math.floor(Math.random() * 15) + 5;
       });
-    }, 200);
-
-    // Terminal Boot Sequence Logs
-    const bootMessages = [
-      "ESTABLISHING SECURE CONNECTION...",
-      "BYPASSING MAINFRAME SECURITY...",
-      "DECRYPTING PARADOX DATABANKS...",
-      "LOADING NEON VIRTUAL ASSETS...",
-      "CALIBRATING CRT SCANLINES...",
-      "ACCESS GRANTED."
-    ];
-    let logIndex = 0;
-    const logInterval = setInterval(() => {
-      if (logIndex < bootMessages.length) {
-        setLogs((prev) => [...prev, bootMessages[logIndex]]);
-        logIndex++;
-      }
-    }, 650);
+    }, 150);
 
     const timer = setTimeout(() => {
       setFadeOut(true);
       setTimeout(() => setIsLoading(false), 500);
-    }, 5000);
+    }, 2000);
 
     return () => {
       clearTimeout(timer);
       clearInterval(interval);
-      clearInterval(logInterval);
     };
   }, []);
 
   return (
-    <div className="crt relative min-h-screen">
+    <div className="relative min-h-screen bg-[var(--color-bg-dark)] font-sans text-gray-100">
       {/* Loading Screen Overlay */}
       {isLoading && (
         <div 
-          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#050505] transition-opacity duration-500 ease-in-out ${
+          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[var(--color-bg-dark)] transition-opacity duration-500 ease-in-out ${
             fadeOut ? 'opacity-0' : 'opacity-100'
-          } crt overflow-hidden`}
+          }`}
         >
-          {/* Cyberpunk Grid Background */}
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(0,240,255,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(0,240,255,0.07)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none"></div>
-          {/* Vignette to fade out grid edges */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,#050505_80%)] pointer-events-none"></div>
-
           {/* Logo container with background glow */}
           <div className="relative mb-8 md:mb-12">
-            <div className="absolute inset-0 bg-[var(--color-arcade-neon-green)] blur-[60px] opacity-20 animate-pulse"></div>
+            <div className="absolute inset-0 bg-[var(--color-primary)] blur-[80px] opacity-30 animate-pulse"></div>
             <img 
               src={pdoxLogo} 
               alt="Paradox Logo" 
-              className="w-24 h-24 md:w-40 md:h-40 relative z-10 animate-float drop-shadow-[0_0_15px_rgba(0,240,255,0.5)] transform-gpu"
+              className="w-24 h-24 md:w-32 md:h-32 relative z-10 animate-float drop-shadow-[0_0_15px_rgba(255,51,0,0.5)] transform-gpu"
             />
           </div>
 
-          {/* Loading Bar & Terminal Section */}
-          <div className="w-72 md:w-96 flex flex-col relative z-10">
-            <div className="flex justify-between font-heading text-[var(--color-arcade-neon-green)] text-xs tracking-widest mb-2 shadow-sm">
-              <span>SYSTEM.BOOT</span>
+          {/* Loading Bar Section */}
+          <div className="w-64 md:w-80 flex flex-col relative z-10">
+            <div className="flex justify-between font-sans font-medium text-[var(--color-primary)] text-xs tracking-wider mb-3">
+              <span>LOADING</span>
               <span>{Math.min(progress, 100)}%</span>
             </div>
             
-            <div className="h-[2px] w-full bg-gray-900 border border-[var(--color-arcade-neon-green)]/30 relative overflow-hidden rounded">
+            <div className="h-[2px] w-full bg-[rgba(255,255,255,0.1)] relative overflow-hidden rounded-full">
               <div 
-                className="absolute top-0 left-0 h-full bg-[var(--color-arcade-neon-green)] shadow-[0_0_10px_var(--color-arcade-neon-green)] transition-all duration-200 ease-out"
+                className="absolute top-0 left-0 h-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] shadow-[0_0_10px_var(--color-primary)] transition-all duration-200 ease-out"
                 style={{ width: `${Math.min(progress, 100)}%` }}
               ></div>
-            </div>
-
-            {/* Boot Logs Terminal */}
-            <div className="mt-6 h-24 overflow-hidden flex flex-col justify-end text-left w-full border border-[var(--color-arcade-neon-green)]/20 bg-black/50 p-3 rounded backdrop-blur-sm shadow-[inset_0_0_15px_rgba(0,240,255,0.05)]">
-              {logs.map((log, i) => (
-                <div key={i} className="font-mono text-[var(--color-arcade-neon-green)]/80 text-[9px] md:text-[11px] leading-tight mb-1">
-                  {`> ${log}`}
-                </div>
-              ))}
-              <div className="font-mono text-[var(--color-arcade-neon-green)] text-[9px] md:text-[11px] animate-pulse">
-                {`> _`}
-              </div>
             </div>
           </div>
         </div>
@@ -116,17 +79,29 @@ function App() {
       <ScrollToTop />
       <Navbar />
 
-      {/* TechCon26 Style Animated Background */}
-      <div className="fixed inset-0 w-full h-full pointer-events-none z-[-2] bg-[#030305] overflow-hidden">
-        {/* Purple drifting glow (similar to site-wave--back) */}
-        <div className="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vw] bg-[radial-gradient(circle,rgba(120,45,255,0.12)_0%,transparent_60%)] animate-float rounded-full mix-blend-screen pointer-events-none"></div>
-        {/* Cyan drifting glow (similar to site-wave--front) */}
-        <div className="absolute bottom-[-20%] right-[-10%] w-[70vw] h-[70vw] bg-[radial-gradient(circle,rgba(2,231,253,0.12)_0%,transparent_60%)] animate-float rounded-full mix-blend-screen pointer-events-none" style={{ animationDelay: '-2s', animationDuration: '6s' }}></div>
+      {/* Professional Aesthetic Background */}
+      <div className="fixed inset-0 w-full h-full pointer-events-none z-[-2] overflow-hidden bg-[var(--color-bg-dark)]">
+        
+        {/* SVG Noise Texture for Premium Matte Finish */}
+        <div className="absolute inset-0 opacity-[0.015] mix-blend-screen" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.85%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }}></div>
+
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] opacity-30 mix-blend-overlay"></div>
+        
+        {/* Vignette for depth */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.8)_100%)] mix-blend-multiply"></div>
+        
+        {/* Ambient Glowing Orbs */}
+        <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] bg-[radial-gradient(circle,rgba(255,51,0,0.05)_0%,transparent_60%)] animate-pulse-slow rounded-full mix-blend-screen pointer-events-none"></div>
+        <div className="absolute top-[30%] right-[-20%] w-[70vw] h-[70vw] bg-[radial-gradient(circle,rgba(255,107,0,0.04)_0%,transparent_60%)] animate-float rounded-full mix-blend-screen pointer-events-none" style={{ animationDelay: '-2s', animationDuration: '8s' }}></div>
+        <div className="absolute bottom-[-20%] left-[20%] w-[50vw] h-[50vw] bg-[radial-gradient(circle,rgba(255,51,0,0.03)_0%,transparent_60%)] rounded-full mix-blend-screen pointer-events-none"></div>
+        
       </div>
 
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/events/:eventId" element={<EventDetails />} />
+        <Route path="/admin" element={<AdminPage />} />
       </Routes>
 
       <Footer />
