@@ -1,38 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Calendar, Clock, MapPin, Trophy, Phone, ArrowLeft, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 
-const eventData = {
-  'debate': {
-    title: 'DEBATE COMPETITION',
-    type: 'Debate',
-    date: '7/10/2025',
-    time: '9:45 AM - 12:30 PM',
-    venue: 'CSLH5(S7 CSE A), Main Stage',
-    prizePool: '2000',
-    posterUrl: 'https://paradox25.netlify.app/posters/debate.jpg',
-    contacts: [
-      { name: 'BHAVYA', phone: '7510695281' },
-      { name: 'BOOMIKA', phone: '7034958002' }
-    ]
-  },
-  'c-challenge': {
-    title: 'C CHALLENGE',
-    type: 'Coding',
-    date: '7/10/2025',
-    time: '9:45 AM - 12:30 PM',
-    venue: 'CSLH5(S7 CSE A), Main Stage',
-    prizePool: '2000',
-    posterUrl: 'https://paradox25.netlify.app/_next/image?url=%2Fposters%2Fcchallenge.png&w=1920&q=75',
-    contacts: [
-      { name: 'BHAVYA', phone: '7510695281' },
-      { name: 'BOOMIKA', phone: '7034958002' }
-    ]
-  },
-};
+import { EVENTS_BY_ID } from '../data/eventsData';
 
 const EventDetails = () => {
   const { eventId } = useParams();
@@ -41,9 +14,9 @@ const EventDetails = () => {
 
   useEffect(() => {
     const fetchEvent = async () => {
-      // 1. Try to find in hardcoded data
-      if (eventData[eventId]) {
-        setEvent(eventData[eventId]);
+      // 1. Try to find in standard events data
+      if (EVENTS_BY_ID[eventId]) {
+        setEvent(EVENTS_BY_ID[eventId]);
         setIsLoading(false);
         return;
       }
@@ -56,12 +29,12 @@ const EventDetails = () => {
         if (docSnap.exists()) {
           setEvent(docSnap.data());
         } else {
-          // 3. Fallback to debate
-          setEvent(eventData['debate']);
+          // 3. Fallback to first available event
+          setEvent(EVENTS_BY_ID['c-challenge'] || null);
         }
       } catch (error) {
         console.error("Error fetching event details:", error);
-        setEvent(eventData['debate']);
+        setEvent(EVENTS_BY_ID['c-challenge'] || null);
       } finally {
         setIsLoading(false);
       }
@@ -95,13 +68,25 @@ const EventDetails = () => {
           <Link to="/#events" className="flex items-center gap-2 text-gray-500 hover:text-[var(--color-primary)] text-[10px] font-bold uppercase tracking-widest transition-colors mb-4 group">
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> BACK TO EVENTS
           </Link>
-          <div className="flex items-center gap-4 mb-2">
+          <div className="flex items-center gap-3 mb-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)]"></span>
+            <span className="text-[var(--color-primary)] text-xs font-bold tracking-widest uppercase">{event.categoryLabel || event.category || 'EVENT'}</span>
+            <span className="text-white/20 text-xs">•</span>
             <span className="text-gray-400 text-xs font-semibold tracking-widest uppercase">{event.type}</span>
           </div>
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-sans font-bold tracking-tight text-white uppercase leading-none">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-sans font-bold tracking-tight text-white uppercase leading-none mb-3">
             {event.title}
           </h1>
+          {event.subtitle && (
+            <p className="text-gray-300 text-sm md:text-base font-medium max-w-2xl mb-2">
+              {event.subtitle}
+            </p>
+          )}
+          {event.description && (
+            <p className="text-gray-400 text-xs md:text-sm max-w-2xl leading-relaxed">
+              {event.description}
+            </p>
+          )}
         </motion.div>
 
         {/* Main Content Grid */}
@@ -190,7 +175,7 @@ const EventDetails = () => {
               <div>
                 <h4 className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-3">Coordinators</h4>
                 <div className="flex flex-wrap gap-2">
-                  {event.contacts.map((contact, idx) => (
+                  {(event.contacts || []).map((contact, idx) => (
                     <a key={idx} href={`tel:${contact.phone}`} className="flex items-center gap-2 bg-white/5 hover:bg-white/10 transition-colors rounded-full px-4 py-2 border border-white/10 group">
                       <Phone className="w-3 h-3 text-gray-400 group-hover:text-[var(--color-primary)] transition-colors" />
                       <span className="text-white text-[11px] font-bold tracking-wider">{contact.name}</span>
@@ -201,10 +186,10 @@ const EventDetails = () => {
 
               {/* Action Buttons Integrated into card bottom */}
               <div className="flex flex-col sm:flex-row gap-3 mt-auto pt-4">
-                <button className="flex-1 bg-white hover:bg-gray-200 text-[#070707] transition-all rounded-full px-6 py-3.5 font-bold text-sm tracking-wide shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:-translate-y-0.5 flex items-center justify-center gap-2 group">
+                <Link to={`/register/${eventId}`} className="flex-1 bg-white hover:bg-gray-200 text-[#070707] transition-all rounded-full px-6 py-3.5 font-bold text-sm tracking-wide shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:-translate-y-0.5 flex items-center justify-center gap-2 group">
                   Register Now
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </button>
+                </Link>
                 <button className="flex-1 bg-transparent hover:bg-white/5 border border-white/20 text-white transition-all rounded-full px-6 py-3.5 font-bold text-sm tracking-wide flex items-center justify-center">
                   Guidelines
                 </button>

@@ -5,6 +5,7 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import EventDetails from './pages/EventDetails';
 import AdminPage from './pages/AdminPage';
+import RegistrationPage from './pages/RegistrationPage';
 import './index.css';
 import pdoxLogo from './assets/pdox.png';
 const ScrollToTop = () => {
@@ -16,62 +17,51 @@ const ScrollToTop = () => {
 };
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => {
+    // Check if we've already shown the loader in this session
+    return !sessionStorage.getItem('paradoxLoaded');
+  });
   const [fadeOut, setFadeOut] = useState(false);
-  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    // Simulate loading progress over ~2 seconds
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) return 100;
-        return prev + Math.floor(Math.random() * 15) + 5;
-      });
-    }, 150);
+    if (!isLoading) return; // Skip if already loaded
 
+    // Sleek, faster professional animation
     const timer = setTimeout(() => {
       setFadeOut(true);
-      setTimeout(() => setIsLoading(false), 500);
-    }, 2000);
+      setTimeout(() => {
+        setIsLoading(false);
+        sessionStorage.setItem('paradoxLoaded', 'true');
+      }, 500); // Wait for fade out
+    }, 1500); // 1.5s total load time
 
-    return () => {
-      clearTimeout(timer);
-      clearInterval(interval);
-    };
-  }, []);
+    return () => clearTimeout(timer);
+  }, [isLoading]);
 
   return (
     <div className="relative min-h-screen bg-[var(--color-bg-dark)] font-sans text-gray-100">
-      {/* Loading Screen Overlay */}
+      {/* Loading Screen Overlay - Professional & Minimal */}
       {isLoading && (
         <div 
           className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[var(--color-bg-dark)] transition-opacity duration-500 ease-in-out ${
             fadeOut ? 'opacity-0' : 'opacity-100'
           }`}
         >
-          {/* Logo container with background glow */}
-          <div className="relative mb-8 md:mb-12">
-            <div className="absolute inset-0 bg-[var(--color-primary)] blur-[80px] opacity-30 animate-pulse"></div>
+          {/* Minimalist Glowing Ring & Logo */}
+          <div className="relative flex items-center justify-center mb-8">
+            <div className="absolute w-32 h-32 rounded-full border-t-2 border-l-2 border-[var(--color-primary)] animate-spin" style={{ animationDuration: '1.5s' }}></div>
+            <div className="absolute w-32 h-32 rounded-full border-b-2 border-r-2 border-[var(--color-primary)]/20 animate-spin" style={{ animationDuration: '3s', animationDirection: 'reverse' }}></div>
             <img 
               src={pdoxLogo} 
               alt="Paradox Logo" 
-              className="w-24 h-24 md:w-32 md:h-32 relative z-10 animate-float drop-shadow-[0_0_15px_rgba(255,51,0,0.5)] transform-gpu"
+              className="w-16 h-16 relative z-10 animate-pulse drop-shadow-[0_0_10px_rgba(255,51,0,0.8)]"
             />
           </div>
 
-          {/* Loading Bar Section */}
-          <div className="w-64 md:w-80 flex flex-col relative z-10">
-            <div className="flex justify-between font-sans font-medium text-[var(--color-primary)] text-xs tracking-wider mb-3">
-              <span>LOADING</span>
-              <span>{Math.min(progress, 100)}%</span>
-            </div>
-            
-            <div className="h-[2px] w-full bg-[rgba(255,255,255,0.1)] relative overflow-hidden rounded-full">
-              <div 
-                className="absolute top-0 left-0 h-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] shadow-[0_0_10px_var(--color-primary)] transition-all duration-200 ease-out"
-                style={{ width: `${Math.min(progress, 100)}%` }}
-              ></div>
-            </div>
+          {/* Simple Clean Text */}
+          <div className="flex flex-col items-center gap-2">
+            <span className="font-sans font-bold text-white tracking-[0.3em] text-sm uppercase">Paradox 2026</span>
+            <span className="text-[var(--color-primary)] text-[10px] tracking-widest font-semibold uppercase animate-pulse">Initializing System...</span>
           </div>
         </div>
       )}
@@ -101,6 +91,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/events/:eventId" element={<EventDetails />} />
+        <Route path="/register/:eventId" element={<RegistrationPage />} />
         <Route path="/admin" element={<AdminPage />} />
       </Routes>
 

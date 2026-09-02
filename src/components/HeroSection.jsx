@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import bgImage from '../assets/bg.png'; // Use bg.png since bg.jpg doesn't exist
 
@@ -25,16 +24,26 @@ const HeroSection = () => {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="flex flex-col items-start text-left w-full max-w-4xl"
         >
-          <h1 className="text-[2.5rem] sm:text-5xl md:text-6xl lg:text-7xl font-sans font-bold tracking-tight text-white uppercase leading-[1.1] break-words whitespace-normal w-full max-w-full">
-            Department<br />
-            of Computer<br />
-            Science<br />
-            <span className="block normal-case font-serif italic font-light text-[var(--color-primary)] mt-2 lg:mt-4 text-[2.75rem] sm:text-6xl md:text-7xl lg:text-[6rem] leading-[1.1]">
-              and Engineering
+          {/* Glass Badge: Department */}
+          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full glass-badge mb-6 sm:mb-8">
+            <span className="w-2 h-2 rounded-full bg-[var(--color-primary)] shadow-[0_0_10px_var(--color-primary)] animate-pulse"></span>
+            <span className="text-gray-300 font-sans text-xs font-semibold tracking-widest uppercase">
+              Department of Computer Science & Engineering
+            </span>
+          </div>
+
+          {/* Main Headline: PARADOX 2026 */}
+          <h1 className="tracking-tighter leading-[0.95] select-none">
+            <span className="block font-sans font-bold text-[3.75rem] sm:text-7xl md:text-8xl lg:text-[7.5rem] xl:text-[8.5rem] tracking-tighter text-white">
+              Paradox
+            </span>
+            <span className="block mt-2 sm:mt-1 text-[3.25rem] sm:text-6xl md:text-7xl lg:text-8xl xl:text-[7.5rem] font-sans font-semibold text-[var(--color-primary)] tracking-tighter pr-4">
+              2026
             </span>
           </h1>
-          <p className="mt-8 text-gray-400 text-base md:text-lg font-light tracking-wide max-w-xl">
-            College of Engineering Kidangoor invites you to our flagship technical festival. Step into the digital grid.
+
+          <p className="mt-8 text-gray-300/90 text-base md:text-lg font-light tracking-wide max-w-xl leading-relaxed">
+            Welcome to the annual flagship technical festival presented by the Department of Computer Science and Engineering. Step into the digital grid.
           </p>
 
           {/* Action Buttons underneath text */}

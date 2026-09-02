@@ -1,52 +1,55 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Layers, Code2, Gamepad2, Sparkles, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
 import { db } from '../firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
+import { CATEGORIES, EVENTS } from '../data/eventsData';
 
-const events = [
-  // ... existing hardcoded events ...
-  { id: 'efootball', title: 'EFOOTBALL', type: 'Gaming', status: 'Register Now' },
-  { id: 'mini-militia', title: 'MINI MILITIA', type: 'Gaming', status: 'Register Now' },
-  { id: 'valorant', title: 'VALORANT', type: 'Gaming', status: 'Register Now' },
-  { id: 'c-challenge', title: 'C CHALLENGE', type: 'Coding', status: 'Register Now' },
-  { id: 'single-prompt', title: 'SINGLE PROMPT', type: 'AI Prompting', status: 'Register Now' },
-  { id: 'blind-coding', title: 'BLIND CODING', type: 'Coding', status: 'Register Now' },
-  { id: 'web-development', title: 'WEB DEVELOPMENT', type: 'Development', status: 'Register Now' },
-  { id: 'speed-typing', title: 'SPEED TYPING', type: 'Typing', status: 'Register Now' },
-  { id: 'treasure-hunt', title: 'TREASURE HUNT', type: 'Mystery', status: 'Register Now' },
-  { id: 'quiz', title: 'QUIZ', type: 'Knowledge', status: 'Register Now' },
-  { id: 'grammar-error', title: 'GRAMMATICAL ERROR FINDING', type: 'Literary', status: 'Register Now' },
-  { id: 'best-engineer', title: 'BEST ENGINEER', type: 'General Tech', status: 'Register Now' },
-  { id: 'crime-scene', title: 'CRIME SCENE INVESTIGATION', type: 'Mystery', status: 'Register Now' },
-  { id: 'spot-photography', title: 'SPOT PHOTOGRAPHY', type: 'Creative', status: 'Register Now' },
-  { id: 'idea-pitching', title: 'IDEA PITCHING', type: 'Ideation', status: 'Register Now' },
-  { id: 'pitch-product', title: 'PITCH THE PRODUCT', type: 'Ideation', status: 'Register Now' },
-  { id: 'chess', title: 'CHESS COMPETITION', type: 'Strategy', status: 'Register Now' },
-  { id: 'spot-ppt', title: 'SPOT PPT', type: 'Presentation', status: 'Register Now' },
-  { id: 'poster-design', title: 'POSTER DESIGN', type: 'Creative', status: 'Register Now' },
-  { id: 'debate', title: 'DEBATE', type: 'Literary', status: 'Register Now' },
-  { id: 'group-discussion', title: 'GROUP DISCUSSION', type: 'Literary', status: 'Register Now' },
-  { id: 'code-relay', title: 'CODE RELAY', type: 'Coding', status: 'Register Now' },
-  { id: 'python-debugging', title: 'PYTHON DEBUGGING', type: 'Coding', status: 'Register Now' },
-];
+const iconMap = {
+  Layers,
+  Code2,
+  Gamepad2,
+  Sparkles,
+};
 
 const EventsSection = () => {
+  const [activeCategory, setActiveCategory] = useState('all');
   const [showAll, setShowAll] = useState(false);
-  const [allEvents, setAllEvents] = useState(events);
+  const [allEvents, setAllEvents] = useState(EVENTS);
 
   useEffect(() => {
     // Listen for real-time updates from Firebase
     const unsubscribe = onSnapshot(collection(db, "customEvents"), (snapshot) => {
-      const customEventsData = [];
+      const customEventsMap = new Map();
       snapshot.forEach((doc) => {
-        customEventsData.push(doc.data());
+        customEventsMap.set(doc.id, doc.data());
       });
       
-      if (customEventsData.length > 0) {
-        // Prepend custom events so they show up FIRST in the list
-        setAllEvents([...customEventsData, ...events]);
+      const merged = [];
+      const processedIds = new Set();
+
+      // Handle base events: apply custom edits or filter deleted
+      for (const baseEvent of EVENTS) {
+        if (customEventsMap.has(baseEvent.id)) {
+          const custom = customEventsMap.get(baseEvent.id);
+          if (!custom.deleted) {
+            merged.push({ ...baseEvent, ...custom });
+          }
+          processedIds.add(baseEvent.id);
+        } else {
+          merged.push(baseEvent);
+        }
       }
+
+      // Prepend newly added custom events
+      for (const [id, custom] of customEventsMap.entries()) {
+        if (!processedIds.has(id) && !custom.deleted) {
+          merged.unshift(custom);
+        }
+      }
+
+      setAllEvents(merged);
     }, (error) => {
       console.error("Error fetching live Firebase events:", error);
     });
@@ -54,7 +57,52 @@ const EventsSection = () => {
     return () => unsubscribe(); // Cleanup listener on unmount
   }, []);
 
-  const displayedEvents = showAll ? allEvents : allEvents.slice(0, 6);
+  // Filter events based on active category
+  const filteredEvents = allEvents.filter((event) => {
+    if (activeCategory === 'all') return true;
+    if (event.category) {
+      return event.category.toLowerCase() === activeCategory.toLowerCase();
+    }
+    // Heuristic fallback for custom Firebase events if category is not explicitly set
+    const typeLower = (event.type || '').toLowerCase();
+    if (activeCategory === 'coding') {
+      return typeLower.includes('cod') || typeLower.includes('dev') || typeLower.includes('prompt') || typeLower.includes('debug');
+    }
+    if (activeCategory === 'esports') {
+      return typeLower.includes('gam') || typeLower.includes('esport') || typeLower.includes('play');
+    }
+    if (activeCategory === 'general') {
+      return !typeLower.includes('cod') && !typeLower.includes('dev') && !typeLower.includes('prompt') && !typeLower.includes('debug') && !typeLower.includes('gam') && !typeLower.includes('esport');
+    }
+    return true;
+  });
+
+  // Calculate count for each category badge
+  const getCategoryCount = (categoryId) => {
+    if (categoryId === 'all') return allEvents.length;
+    return allEvents.filter((event) => {
+      if (event.category) {
+        return event.category.toLowerCase() === categoryId.toLowerCase();
+      }
+      const typeLower = (event.type || '').toLowerCase();
+      if (categoryId === 'coding') {
+        return typeLower.includes('cod') || typeLower.includes('dev') || typeLower.includes('prompt') || typeLower.includes('debug');
+      }
+      if (categoryId === 'esports') {
+        return typeLower.includes('gam') || typeLower.includes('esport') || typeLower.includes('play');
+      }
+      if (categoryId === 'general') {
+        return !typeLower.includes('cod') && !typeLower.includes('dev') && !typeLower.includes('prompt') && !typeLower.includes('debug') && !typeLower.includes('gam') && !typeLower.includes('esport');
+      }
+      return false;
+    }).length;
+  };
+
+  // When "all" category is selected, display first 3 initially unless showAll is true.
+  // When a specific category is selected, display all events of that category so the user sees everything right away!
+  const displayedEvents = (activeCategory === 'all' && !showAll) 
+    ? filteredEvents.slice(0, 3) 
+    : filteredEvents;
 
   return (
     <section 
@@ -62,85 +110,178 @@ const EventsSection = () => {
       className="min-h-screen w-full py-24 relative z-10 bg-transparent"
     >
       <div className="w-full max-w-7xl mx-auto px-6 relative z-10">
-        <div className="text-left md:text-center mb-16 md:mb-24 relative">
-          <div className="absolute top-1/2 left-0 md:left-1/2 md:-translate-x-1/2 -translate-y-1/2 w-64 md:w-96 h-64 md:h-96 bg-[radial-gradient(circle,rgba(255,51,0,0.1)_0%,transparent_60%)] pointer-events-none rounded-full blur-[60px] z-[-1]"></div>
+        
+        {/* Section Header */}
+        <div className="text-left md:text-center mb-12 md:mb-16 relative">
+          <div className="absolute top-1/2 left-0 md:left-1/2 md:-translate-x-1/2 -translate-y-1/2 w-64 md:w-96 h-64 md:h-96 bg-[radial-gradient(circle,rgba(255,51,0,0.12)_0%,transparent_65%)] pointer-events-none rounded-full blur-[70px] z-[-1]"></div>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.6 }}
           >
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/10 text-[var(--color-primary)] text-xs font-bold tracking-widest uppercase mb-4">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)] animate-pulse"></span>
+              Competitive Tracks
+            </div>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-sans text-white tracking-tight leading-[1.2]">
               Explore Our Events.<br />
               <span className="text-gray-400">Compete With Passion.</span>
             </h2>
-            <p className="text-gray-400 font-sans text-sm md:text-base max-w-sm md:mx-auto leading-relaxed mt-6">
-              Discover the future of tech. Choose your track and participate in cutting-edge challenges.
+            <p className="text-gray-400 font-sans text-sm md:text-base max-w-lg md:mx-auto leading-relaxed mt-4">
+              Choose your track to browse Coding, eSports, and General competitions. Test your skills against the best.
             </p>
           </motion.div>
         </div>
 
-        {/* 3-column grid for wider, more elegant cards */}
-        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          <AnimatePresence>
-            {displayedEvents.map((event, index) => (
-              <motion.div
-                key={event.id}
-                layout
-                initial={{ opacity: 0, y: 40, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.5, delay: (index % 6) * 0.1 }}
-                className="h-full"
-              >
-                <Link to={`/events/${event.id}`} className="flux-card block relative h-full min-h-[220px] group cursor-pointer no-underline p-8">
-                  
-                  {/* Large Background Number for Editorial Feel */}
-                  <div className="absolute top-4 right-6 font-sans text-[5rem] leading-none font-black text-white/[0.02] group-hover:text-[var(--color-primary)]/10 transition-colors duration-500 pointer-events-none select-none">
-                    {(index + 1).toString().padStart(2, '0')}
-                  </div>
-                  
-                  <div className="relative z-10 flex flex-col h-full">
-                    
-                    {/* Category with animated dot */}
-                    <div className="flex items-center gap-3 mb-10">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)] group-hover:scale-[2] transition-transform duration-300"></div>
-                      <span className="font-sans text-[10px] text-gray-500 uppercase tracking-widest font-bold group-hover:text-gray-300 transition-colors">
-                        {event.type}
-                      </span>
-                    </div>
+        {/* Category Filter Tabs */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="flex justify-center mb-12 md:mb-16"
+        >
+          <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 p-1.5 bg-black/40 border border-white/10 rounded-full backdrop-blur-2xl shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+            {CATEGORIES.map((cat) => {
+              const Icon = iconMap[cat.icon] || Layers;
+              const isActive = activeCategory === cat.id;
+              const count = getCategoryCount(cat.id);
 
-                    {/* Title */}
-                    <h3 className="font-sans text-white text-xl md:text-2xl font-bold mb-4 tracking-tight group-hover:text-[var(--color-primary)] transition-colors duration-300">
-                      {event.title}
-                    </h3>
-                    
-                    {/* Hover Action */}
-                    <div className="mt-auto flex items-center gap-2 text-gray-500 group-hover:text-white transition-colors duration-300">
-                      <span className="text-xs font-medium tracking-wide uppercase">{event.status}</span>
-                      <span className="transform -translate-x-3 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300 text-[var(--color-primary)]">
-                        →
-                      </span>
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => {
+                    setActiveCategory(cat.id);
+                  }}
+                  className={`relative flex items-center gap-2.5 px-4 md:px-6 py-2.5 rounded-full text-xs md:text-sm font-semibold tracking-wide transition-all duration-300 select-none ${
+                    isActive
+                      ? 'bg-[var(--color-primary)] text-white shadow-[0_0_25px_rgba(255,51,0,0.45)]'
+                      : 'text-gray-400 hover:text-white hover:bg-white/[0.06]'
+                  }`}
+                >
+                  <Icon className={`w-4 h-4 transition-transform duration-300 ${isActive ? 'scale-110' : ''}`} />
+                  <span>{cat.label}</span>
+                  <span 
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold tracking-tight transition-colors ${
+                      isActive 
+                        ? 'bg-black/30 text-white' 
+                        : 'bg-white/10 text-gray-400 group-hover:text-white'
+                    }`}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </motion.div>
+
+        {/* 3-Column Events Grid */}
+        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          <AnimatePresence mode="popLayout">
+            {displayedEvents.map((event, index) => {
+              const formattedNumber = event.number 
+                ? event.number.toString().padStart(2, '0')
+                : (index + 1).toString().padStart(2, '0');
+
+              return (
+                <motion.div
+                  key={event.id}
+                  layout
+                  initial={{ opacity: 0, y: 30, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.92, transition: { duration: 0.2 } }}
+                  transition={{ duration: 0.4, delay: (index % 6) * 0.05 }}
+                  className="h-full"
+                >
+                  <Link 
+                    to={`/events/${event.id}`} 
+                    className="flux-card block relative h-full min-h-[240px] group cursor-pointer no-underline p-8 border border-white/5 hover:border-[var(--color-primary)]/40 transition-all duration-500 rounded-3xl"
+                  >
+                    {/* Large Background Watermark Number */}
+                    <div className="absolute top-4 right-6 font-sans text-[4.5rem] md:text-[5rem] leading-none font-black text-white/[0.03] group-hover:text-[var(--color-primary)]/15 transition-colors duration-500 pointer-events-none select-none">
+                      {formattedNumber}
                     </div>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
+                    
+                    <div className="relative z-10 flex flex-col h-full">
+                      {/* Track / Category Tag */}
+                      <div className="flex items-center gap-2.5 mb-6">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)] group-hover:scale-[2] transition-transform duration-300"></div>
+                        <span className="font-sans text-[10px] text-[var(--color-primary)] uppercase tracking-widest font-bold">
+                          {event.categoryLabel || event.category?.toUpperCase() || 'EVENT'}
+                        </span>
+                        <span className="text-white/20 text-xs">•</span>
+                        <span className="font-sans text-[10px] text-gray-400 uppercase tracking-widest font-semibold group-hover:text-gray-200 transition-colors">
+                          {event.type}
+                        </span>
+                      </div>
+
+                      {/* Event Title */}
+                      <h3 className="font-sans text-white text-xl md:text-2xl font-bold mb-2 tracking-tight group-hover:text-[var(--color-primary)] transition-colors duration-300">
+                        {event.title}
+                      </h3>
+
+                      {/* Subtitle / Alternate Name */}
+                      {event.subtitle && (
+                        <p className="text-gray-400 text-xs font-medium mb-3 line-clamp-1 leading-relaxed">
+                          {event.subtitle}
+                        </p>
+                      )}
+
+                      {/* Description preview */}
+                      {event.description && (
+                        <p className="text-gray-500 text-xs font-normal mb-6 line-clamp-2 leading-relaxed">
+                          {event.description}
+                        </p>
+                      )}
+                      
+                      {/* Hover Action */}
+                      <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between text-gray-500 group-hover:text-white transition-colors duration-300">
+                        <span className="text-xs font-medium tracking-wider uppercase">
+                          {event.status || 'Register Now'}
+                        </span>
+                        <div className="w-7 h-7 rounded-full bg-white/5 group-hover:bg-[var(--color-primary)]/20 flex items-center justify-center transition-colors duration-300">
+                          <ArrowRight className="w-3.5 h-3.5 text-gray-400 group-hover:text-[var(--color-primary)] group-hover:translate-x-0.5 transition-all duration-300" />
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
         </motion.div>
 
-        {/* Load More Button */}
-        {!showAll && allEvents.length > 6 && (
+        {/* Empty state if category has no events */}
+        {filteredEvents.length === 0 && (
+          <div className="text-center py-16">
+            <p className="text-gray-500 text-sm">No events found in this category.</p>
+          </div>
+        )}
+
+        {/* Show More / Show Less Button for "All Events" */}
+        {activeCategory === 'all' && filteredEvents.length > 3 && (
           <div className="mt-16 flex justify-center">
             <button 
-              onClick={() => setShowAll(true)}
-              className="bg-transparent hover:bg-white/5 border border-white/20 text-white transition-all rounded-full px-8 py-4 font-bold text-sm tracking-wide shadow-lg hover:-translate-y-1 flex items-center justify-center gap-2 group"
+              onClick={() => setShowAll(!showAll)}
+              className="bg-transparent hover:bg-white/5 border border-white/20 text-white transition-all rounded-full px-8 py-4 font-bold text-sm tracking-wide shadow-lg hover:-translate-y-1 flex items-center justify-center gap-2.5 group"
             >
-              Show All {allEvents.length} Events
-              <span className="group-hover:translate-y-1 transition-transform">↓</span>
+              {showAll ? (
+                <>
+                  Show Top Events
+                  <ChevronUp className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform" />
+                </>
+              ) : (
+                <>
+                  Show All {filteredEvents.length} Events
+                  <ChevronDown className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
+                </>
+              )}
             </button>
           </div>
         )}
+
       </div>
     </section>
   );

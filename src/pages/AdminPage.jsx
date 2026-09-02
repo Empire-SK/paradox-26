@@ -1,25 +1,90 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Upload, Calendar, Clock, MapPin, Trophy, Users, Save, X, Plus } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Upload, Calendar, Clock, MapPin, Trophy, Users, Save, X, Plus, 
+  Edit3, Trash2, Search, RotateCcw, Check, Sparkles, Layers, ArrowUp, Download, Settings
+} from 'lucide-react';
 import { db, storage } from '../firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { collection, doc, setDoc, onSnapshot, query, where, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { EVENTS } from '../data/eventsData';
+
+const initialFormState = {
+  title: '',
+  category: 'coding',
+  type: '',
+  date: '',
+  time: '',
+  venue: '',
+  prizePool: '',
+  posterUrl: '',
+  contacts: [{ name: '', phone: '' }],
+  customFields: []
+};
+
+const categoryLabels = {
+  coding: 'Coding Events',
+  esports: 'eSports Events',
+  general: 'General Events'
+};
 
 const AdminPage = () => {
-  const [formData, setFormData] = useState({
-    title: '',
-    type: '',
-    date: '',
-    time: '',
-    venue: '',
-    prizePool: '',
-    posterUrl: '',
-    contacts: [{ name: '', phone: '' }]
-  });
-
+  const [activeTab, setActiveTab] = useState('events'); // 'events' or 'registrations'
+  const [formData, setFormData] = useState(initialFormState);
   const [previewImage, setPreviewImage] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingEventId, setEditingEventId] = useState(null);
+
+  // Events list & filter state
+  const [allEvents, setAllEvents] = useState(EVENTS);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [activeCategoryFilter, setActiveCategoryFilter] = useState('all');
+  const [statusMessage, setStatusMessage] = useState(null);
+
+  // Registrations state
+  const [selectedEventId, setSelectedEventId] = useState('');
+  const [registrations, setRegistrations] = useState([]);
+  const [isLoadingRegs, setIsLoadingRegs] = useState(false);
+
+  useEffect(() => {
+    // Listen for real-time updates from Firebase
+    const unsubscribe = onSnapshot(collection(db, "customEvents"), (snapshot) => {
+      const customEventsMap = new Map();
+      snapshot.forEach((docSnap) => {
+        customEventsMap.set(docSnap.id, docSnap.data());
+      });
+
+      const merged = [];
+      const processedIds = new Set();
+
+      // Handle base events: apply custom edits or filter deleted
+      for (const baseEvent of EVENTS) {
+        if (customEventsMap.has(baseEvent.id)) {
+          const custom = customEventsMap.get(baseEvent.id);
+          if (!custom.deleted) {
+            merged.push({ ...baseEvent, ...custom });
+          }
+          processedIds.add(baseEvent.id);
+        } else {
+          merged.push(baseEvent);
+        }
+      }
+
+      // Prepend newly added custom events
+      for (const [id, custom] of customEventsMap.entries()) {
+        if (!processedIds.has(id) && !custom.deleted) {
+          merged.unshift(custom);
+        }
+      }
+
+      setAllEvents(merged);
+    }, (error) => {
+      console.error("Error fetching live Firebase events:", error);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -44,12 +109,161 @@ const AdminPage = () => {
     setFormData(prev => ({ ...prev, contacts: newContacts }));
   };
 
+  // --- Custom Fields Builder Helpers ---
+  const addCustomField = () => {
+    setFormData(prev => ({
+      ...prev,
+      customFields: [...(prev.customFields || []), { id: `field_${Date.now()}`, label: '', type: 'text', required: true, options: '' }]
+    }));
+  };
+
+  const updateCustomField = (index, key, value) => {
+    const newFields = [...(formData.customFields || [])];
+    newFields[index][key] = value;
+    setFormData(prev => ({ ...prev, customFields: newFields }));
+  };
+
+  const removeCustomField = (index) => {
+    const newFields = (formData.customFields || []).filter((_, i) => i !== index);
+    setFormData(prev => ({ ...prev, customFields: newFields }));
+  };
+  // -------------------------------------
+
+  // --- Registrations Logic ---
+  const fetchRegistrations = async (eventId) => {
+    setSelectedEventId(eventId);
+    if (!eventId) {
+      setRegistrations([]);
+      return;
+    }
+    setIsLoadingRegs(true);
+    try {
+      const q = query(collection(db, "registrations"), where("eventId", "==", eventId));
+      const querySnapshot = await getDocs(q);
+      const regs = [];
+      querySnapshot.forEach((doc) => {
+        regs.push({ id: doc.id, ...doc.data() });
+      });
+      // Sort by timestamp if available
+      regs.sort((a, b) => {
+        const timeA = a.timestamp?.toMillis ? a.timestamp.toMillis() : 0;
+        const timeB = b.timestamp?.toMillis ? b.timestamp.toMillis() : 0;
+        return timeB - timeA; // newest first
+      });
+      setRegistrations(regs);
+    } catch (error) {
+      console.error("Error fetching registrations:", error);
+      alert("Failed to load registrations.");
+    } finally {
+      setIsLoadingRegs(false);
+    }
+  };
+
+  const exportToCSV = () => {
+    if (registrations.length === 0) return;
+    
+    // Find event to know what custom fields exist
+    const currentEvent = allEvents.find(e => e.id === selectedEventId);
+    const customFields = currentEvent?.customFields || [];
+
+    // Base headers
+    const headers = ['Name', 'Email', 'Phone', 'Semester', 'Department', 'Date Registered'];
+    
+    // Add custom field headers
+    customFields.forEach(field => {
+      headers.push(field.label || field.id);
+    });
+
+    const rows = registrations.map(reg => {
+      const dateStr = reg.timestamp?.toDate ? reg.timestamp.toDate().toLocaleString() : 'N/A';
+      
+      const rowData = [
+        `"${reg.name || ''}"`,
+        `"${reg.email || ''}"`,
+        `"${reg.phone || ''}"`,
+        `"${reg.semester || ''}"`,
+        `"${reg.department || ''}"`,
+        `"${dateStr}"`
+      ];
+
+      // Add custom field values
+      customFields.forEach(field => {
+        const val = (reg.additionalData && reg.additionalData[field.id]) || '';
+        rowData.push(`"${val.replace(/"/g, '""')}"`);
+      });
+
+      return rowData.join(',');
+    });
+
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `${currentEvent?.title || 'event'}_registrations.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  // ---------------------------
+
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setImageFile(file); // Save file to upload later
+      setImageFile(file);
       const url = URL.createObjectURL(file);
-      setPreviewImage(url); // Preview immediately
+      setPreviewImage(url);
+    }
+  };
+
+  const startEditEvent = (event) => {
+    setEditingEventId(event.id);
+    setFormData({
+      title: event.title || '',
+      category: event.category || 'coding',
+      type: event.type || '',
+      date: event.date || '',
+      time: event.time || '',
+      venue: event.venue || '',
+      prizePool: event.prizePool || '',
+      posterUrl: event.posterUrl || '',
+      contacts: event.contacts && event.contacts.length > 0 ? event.contacts : [{ name: '', phone: '' }],
+      customFields: event.customFields || []
+    });
+    setPreviewImage(event.posterUrl || null);
+    setImageFile(null);
+    setActiveTab('events');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const cancelEdit = () => {
+    setEditingEventId(null);
+    setFormData(initialFormState);
+    setPreviewImage(null);
+    setImageFile(null);
+  };
+
+  const handleDeleteEvent = async (event) => {
+    const isConfirmed = window.confirm(`Are you sure you want to delete "${event.title}"?\nThis will remove the event from the site.`);
+    if (!isConfirmed) return;
+
+    try {
+      // Mark as deleted in Firestore so it immediately disappears for all users
+      await setDoc(doc(db, "customEvents", event.id), {
+        id: event.id,
+        deleted: true,
+        deletedAt: new Date().toISOString()
+      }, { merge: true });
+
+      if (editingEventId === event.id) {
+        cancelEdit();
+      }
+
+      setStatusMessage({ type: 'success', text: `Event "${event.title}" was successfully deleted!` });
+      setTimeout(() => setStatusMessage(null), 4000);
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      alert("Could not delete event: " + error.message);
     }
   };
 
@@ -58,14 +272,15 @@ const AdminPage = () => {
     setIsSubmitting(true);
     
     try {
-      // Generate a simple ID from the title
-      const newId = formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+      // Target event ID
+      const targetId = editingEventId 
+        ? editingEventId 
+        : formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
       
-      if (!newId) {
+      if (!targetId) {
         throw new Error("Event Title must contain at least one letter or number.");
       }
 
-      // Helper to prevent infinite hangs
       const withTimeout = (promise, ms, msg) => {
         return Promise.race([
           promise,
@@ -75,11 +290,11 @@ const AdminPage = () => {
 
       let finalPosterUrl = formData.posterUrl;
 
-      // 1. Upload image to Firebase Storage if provided
+      // Upload image to Firebase Storage if new file selected
       if (imageFile) {
         try {
-          const imageRef = ref(storage, `posters/${newId}-${Date.now()}`);
-          await withTimeout(uploadBytes(imageRef, imageFile), 5000, "Image upload timed out. Your connection to Firebase Storage might be blocked.");
+          const imageRef = ref(storage, `posters/${targetId}-${Date.now()}`);
+          await withTimeout(uploadBytes(imageRef, imageFile), 6000, "Image upload timed out.");
           finalPosterUrl = await getDownloadURL(imageRef);
         } catch (imgError) {
           console.warn("Storage upload failed...", imgError);
@@ -87,68 +302,138 @@ const AdminPage = () => {
         }
       }
       
-      const newEvent = {
+      const eventPayload = {
         ...formData,
-        id: newId,
+        id: targetId,
+        category: formData.category || 'coding',
+        categoryLabel: categoryLabels[formData.category] || 'Event',
         posterUrl: finalPosterUrl,
         status: 'Register Now',
-        createdAt: new Date().toISOString()
+        updatedAt: new Date().toISOString()
       };
 
-      // 2. Save to Firestore CustomEvents collection
+      // Save to Firestore CustomEvents collection
       await withTimeout(
-        setDoc(doc(db, "customEvents", newId), newEvent),
-        5000,
-        "Database save timed out. Your browser or adblocker might be blocking Firebase!"
+        setDoc(doc(db, "customEvents", targetId), eventPayload, { merge: true }),
+        6000,
+        "Database save timed out. Your connection to Firebase might be blocked!"
       );
 
-      alert(`Event "${formData.title}" added successfully to Firebase!`);
+      const actionText = editingEventId ? "updated" : "added";
+      setStatusMessage({ type: 'success', text: `Event "${formData.title}" ${actionText} successfully!` });
+      setTimeout(() => setStatusMessage(null), 4000);
       
       // Reset form
-      setFormData({
-        title: '', type: '', date: '', time: '', venue: '', prizePool: '', posterUrl: '', contacts: [{ name: '', phone: '' }]
-      });
-      setPreviewImage(null);
-      setImageFile(null);
+      cancelEdit();
     } catch (error) {
-      console.error("Error adding to Firebase: ", error);
-      alert("Error saving event: " + error.message + "\n\nMake sure you clicked 'Create Database' for Firestore and 'Get Started' for Storage in the Firebase Console!");
+      console.error("Error saving event: ", error);
+      alert("Error saving event: " + error.message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // Filter events for the directory
+  const filteredEvents = allEvents.filter(event => {
+    const matchesCategory = activeCategoryFilter === 'all' || (event.category || '').toLowerCase() === activeCategoryFilter.toLowerCase();
+    const search = searchTerm.toLowerCase();
+    const matchesSearch = !searchTerm || 
+      (event.title && event.title.toLowerCase().includes(search)) ||
+      (event.type && event.type.toLowerCase().includes(search)) ||
+      (event.venue && event.venue.toLowerCase().includes(search));
+    return matchesCategory && matchesSearch;
+  });
+
   return (
-    <div className="min-h-screen pt-32 pb-24 px-6 lg:px-12 relative z-10 w-full max-w-[1200px] mx-auto">
+    <div className="min-h-screen pt-32 pb-24 px-6 lg:px-12 relative z-10 w-full max-w-[1300px] mx-auto">
       
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {statusMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-24 right-6 z-50 bg-[#16a34a] text-white px-6 py-3.5 rounded-2xl shadow-[0_10px_30px_rgba(22,163,74,0.4)] flex items-center gap-3 font-semibold text-sm border border-white/20"
+          >
+            <Check className="w-4 h-4" />
+            <span>{statusMessage.text}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-12"
+        className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4"
       >
-        <div className="flex items-center gap-4 mb-2">
-          <div className="w-2 h-2 rounded-full bg-[var(--color-primary)]"></div>
-          <span className="text-gray-400 text-xs font-semibold tracking-widest uppercase">Admin Dashboard</span>
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-2 h-2 rounded-full bg-[var(--color-primary)] animate-pulse"></div>
+            <span className="text-gray-400 text-xs font-semibold tracking-widest uppercase">Admin Dashboard</span>
+          </div>
+          <h1 className="text-3xl md:text-5xl font-sans font-bold text-white tracking-tight">
+            {editingEventId ? 'Edit Event' : 'Event Control Center'}
+          </h1>
+          <p className="text-gray-400 text-sm mt-1">
+            {editingEventId ? `Updating details for "${formData.title}"` : 'Add, edit, or remove competitions from the platform.'}
+          </p>
         </div>
-        <h1 className="text-4xl md:text-5xl font-sans font-bold text-white tracking-tight">Add New Event</h1>
+
+        {editingEventId && activeTab === 'events' && (
+          <button
+            onClick={cancelEdit}
+            className="self-start md:self-auto flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase tracking-wider transition-all border border-white/10"
+          >
+            <RotateCcw className="w-3.5 h-3.5" /> Cancel Editing
+          </button>
+        )}
       </motion.div>
 
+      {/* Tabs */}
+      <div className="flex gap-4 mb-8 border-b border-white/10 pb-4">
+        <button
+          onClick={() => setActiveTab('events')}
+          className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'events' ? 'bg-[var(--color-primary)] text-white shadow-[0_0_20px_rgba(255,51,0,0.3)]' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'}`}
+        >
+          <Settings className="w-4 h-4" />
+          Event Manager
+        </button>
+        <button
+          onClick={() => { setActiveTab('registrations'); fetchRegistrations(''); }}
+          className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'registrations' ? 'bg-[var(--color-primary)] text-white shadow-[0_0_20px_rgba(255,51,0,0.3)]' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'}`}
+        >
+          <Users className="w-4 h-4" />
+          Registrations Viewer
+        </button>
+      </div>
+
+      {activeTab === 'events' ? (
+      <>
       {/* Main Form Area */}
       <motion.form 
+        id="event-form"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
         onSubmit={handleSubmit}
-        className="grid grid-cols-1 lg:grid-cols-12 gap-10"
+        className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-20"
       >
         
         {/* Left Column: Image Upload & Preview */}
         <div className="lg:col-span-4 flex flex-col gap-6">
-          <div className="flux-card p-6 h-full min-h-[400px] flex flex-col">
-            <h3 className="text-white text-sm font-bold mb-4 tracking-wide uppercase">Event Poster</h3>
+          <div className={`flux-card p-6 h-full min-h-[380px] flex flex-col transition-all duration-300 ${editingEventId ? 'border-[var(--color-primary)]/50' : ''}`}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white text-sm font-bold tracking-wide uppercase">Event Poster</h3>
+              {editingEventId && (
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--color-primary)]/20 text-[var(--color-primary)] border border-[var(--color-primary)]/30">
+                  EDIT MODE
+                </span>
+              )}
+            </div>
             
-            <div className="flex-1 relative rounded-2xl border-2 border-dashed border-white/20 bg-white/5 hover:bg-white/10 transition-colors flex items-center justify-center overflow-hidden group cursor-pointer">
+            <div className="flex-1 relative rounded-2xl border-2 border-dashed border-white/20 bg-white/5 hover:bg-white/10 transition-colors flex items-center justify-center overflow-hidden group cursor-pointer min-h-[260px]">
               <input 
                 type="file" 
                 accept="image/*" 
@@ -157,11 +442,18 @@ const AdminPage = () => {
               />
               
               {previewImage ? (
-                <img src={previewImage} alt="Preview" className="w-full h-full object-cover" />
+                <div className="relative w-full h-full group">
+                  <img src={previewImage} alt="Preview" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 text-white">
+                    <Upload className="w-6 h-6" />
+                    <span className="text-xs font-bold uppercase tracking-wider">Change Image</span>
+                  </div>
+                </div>
               ) : (
                 <div className="flex flex-col items-center gap-3 text-gray-500 group-hover:text-[var(--color-primary)] transition-colors">
                   <Upload className="w-8 h-8" />
                   <span className="text-xs font-bold tracking-widest uppercase">Click to Upload</span>
+                  <span className="text-[10px] text-gray-600">JPG, PNG or WebP</span>
                 </div>
               )}
             </div>
@@ -170,10 +462,19 @@ const AdminPage = () => {
 
         {/* Right Column: Event Details Form */}
         <div className="lg:col-span-8 flex flex-col gap-6">
-          <div className="flux-card p-6 md:p-10">
-            <h3 className="text-white text-lg font-bold mb-8 tracking-wide">Event Information</h3>
+          <div className={`flux-card p-6 md:p-8 transition-all duration-300 ${editingEventId ? 'border-[var(--color-primary)]/50' : ''}`}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-white text-lg font-bold tracking-wide">
+                {editingEventId ? `Edit Event: ${formData.title || 'Untitled'}` : 'Event Information'}
+              </h3>
+              {editingEventId && (
+                <span className="text-xs text-amber-400 font-medium flex items-center gap-1.5 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">
+                  <Edit3 className="w-3.5 h-3.5" /> Modifying existing event
+                </span>
+              )}
+            </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
               {/* Title */}
               <div className="flex flex-col gap-2 md:col-span-2">
                 <label className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">Event Title</label>
@@ -184,21 +485,36 @@ const AdminPage = () => {
                   onChange={handleInputChange}
                   required
                   placeholder="e.g. BLIND CODING"
-                  className="bg-black/50 border border-white/10 rounded-xl px-5 py-4 text-white font-medium focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+                  className="bg-black/50 border border-white/10 rounded-xl px-4 py-3.5 text-white font-medium focus:outline-none focus:border-[var(--color-primary)] transition-colors"
                 />
               </div>
 
-              {/* Type */}
+              {/* Category Track */}
               <div className="flex flex-col gap-2">
-                <label className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">Category / Type</label>
+                <label className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">Track / Category</label>
+                <select 
+                  name="category"
+                  value={formData.category}
+                  onChange={handleInputChange}
+                  className="bg-black/50 border border-white/10 rounded-xl px-4 py-3.5 text-white font-medium focus:outline-none focus:border-[var(--color-primary)] transition-colors cursor-pointer"
+                >
+                  <option value="coding" className="bg-[#121212] text-white">Coding Events</option>
+                  <option value="esports" className="bg-[#121212] text-white">eSports Events</option>
+                  <option value="general" className="bg-[#121212] text-white">General Events</option>
+                </select>
+              </div>
+
+              {/* Type / Sub-badge */}
+              <div className="flex flex-col gap-2">
+                <label className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">Event Badge / Sub-type</label>
                 <input 
                   type="text" 
                   name="type"
                   value={formData.type}
                   onChange={handleInputChange}
                   required
-                  placeholder="e.g. Coding"
-                  className="bg-black/50 border border-white/10 rounded-xl px-5 py-4 text-white font-medium focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+                  placeholder="e.g. AI Prompting, Strategy, Web Dev"
+                  className="bg-black/50 border border-white/10 rounded-xl px-4 py-3.5 text-white font-medium focus:outline-none focus:border-[var(--color-primary)] transition-colors"
                 />
               </div>
 
@@ -206,7 +522,7 @@ const AdminPage = () => {
               <div className="flex flex-col gap-2">
                 <label className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">Prize Pool (₹)</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-gray-500">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500">
                     <Trophy className="w-4 h-4" />
                   </div>
                   <input 
@@ -215,7 +531,7 @@ const AdminPage = () => {
                     value={formData.prizePool}
                     onChange={handleInputChange}
                     placeholder="e.g. 2000"
-                    className="w-full bg-black/50 border border-white/10 rounded-xl pl-12 pr-5 py-4 text-[var(--color-primary)] font-bold focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+                    className="w-full bg-black/50 border border-white/10 rounded-xl pl-11 pr-4 py-3.5 text-[var(--color-primary)] font-bold focus:outline-none focus:border-[var(--color-primary)] transition-colors"
                   />
                 </div>
               </div>
@@ -224,7 +540,7 @@ const AdminPage = () => {
               <div className="flex flex-col gap-2">
                 <label className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">Date</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-gray-500">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500">
                     <Calendar className="w-4 h-4" />
                   </div>
                   <input 
@@ -233,7 +549,7 @@ const AdminPage = () => {
                     value={formData.date}
                     onChange={handleInputChange}
                     placeholder="e.g. 7/10/2025"
-                    className="w-full bg-black/50 border border-white/10 rounded-xl pl-12 pr-5 py-4 text-white font-medium focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+                    className="w-full bg-black/50 border border-white/10 rounded-xl pl-11 pr-4 py-3.5 text-white font-medium focus:outline-none focus:border-[var(--color-primary)] transition-colors"
                   />
                 </div>
               </div>
@@ -242,7 +558,7 @@ const AdminPage = () => {
               <div className="flex flex-col gap-2">
                 <label className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">Time</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-gray-500">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500">
                     <Clock className="w-4 h-4" />
                   </div>
                   <input 
@@ -251,7 +567,7 @@ const AdminPage = () => {
                     value={formData.time}
                     onChange={handleInputChange}
                     placeholder="e.g. 9:45 AM - 12:30 PM"
-                    className="w-full bg-black/50 border border-white/10 rounded-xl pl-12 pr-5 py-4 text-white font-medium focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+                    className="w-full bg-black/50 border border-white/10 rounded-xl pl-11 pr-4 py-3.5 text-white font-medium focus:outline-none focus:border-[var(--color-primary)] transition-colors"
                   />
                 </div>
               </div>
@@ -260,7 +576,7 @@ const AdminPage = () => {
               <div className="flex flex-col gap-2 md:col-span-2">
                 <label className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">Venue</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-gray-500">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500">
                     <MapPin className="w-4 h-4" />
                   </div>
                   <input 
@@ -268,30 +584,30 @@ const AdminPage = () => {
                     name="venue"
                     value={formData.venue}
                     onChange={handleInputChange}
-                    placeholder="e.g. Main Stage"
-                    className="w-full bg-black/50 border border-white/10 rounded-xl pl-12 pr-5 py-4 text-white font-medium focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+                    placeholder="e.g. Main Stage / CSLH5"
+                    className="w-full bg-black/50 border border-white/10 rounded-xl pl-11 pr-4 py-3.5 text-white font-medium focus:outline-none focus:border-[var(--color-primary)] transition-colors"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="w-full h-px bg-white/5 my-8"></div>
+            <div className="w-full h-px bg-white/5 my-6"></div>
 
             {/* Coordinators */}
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-white text-lg font-bold tracking-wide">Event Coordinators</h3>
+            <div className="mb-3 flex items-center justify-between">
+              <h4 className="text-white text-sm font-bold tracking-wide uppercase">Event Coordinators</h4>
               <button 
                 type="button"
                 onClick={addContact}
                 className="flex items-center gap-1 text-[var(--color-primary)] text-xs font-bold uppercase tracking-widest hover:text-white transition-colors"
               >
-                <Plus className="w-4 h-4" /> Add
+                <Plus className="w-3.5 h-3.5" /> Add Contact
               </button>
             </div>
             
-            <div className="flex flex-col gap-4 mb-8">
+            <div className="flex flex-col gap-3 mb-6">
               {formData.contacts.map((contact, idx) => (
-                <div key={idx} className="flex gap-4 items-start">
+                <div key={idx} className="flex gap-3 items-start">
                   <div className="flex-1 bg-black/50 border border-white/10 rounded-xl px-4 py-3 flex items-center gap-3">
                     <Users className="w-4 h-4 text-gray-500 shrink-0" />
                     <input 
@@ -303,7 +619,7 @@ const AdminPage = () => {
                     />
                   </div>
                   <div className="flex-1 bg-black/50 border border-white/10 rounded-xl px-4 py-3 flex items-center gap-3">
-                    <span className="text-gray-500 text-sm shrink-0">+91</span>
+                    <span className="text-gray-500 text-xs shrink-0">+91</span>
                     <input 
                       type="text" 
                       placeholder="Phone (e.g. 7510695281)"
@@ -318,36 +634,339 @@ const AdminPage = () => {
                       onClick={() => removeContact(idx)}
                       className="p-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-xl transition-colors border border-red-500/20"
                     >
-                      <X className="w-5 h-5" />
+                      <X className="w-4 h-4" />
                     </button>
                   )}
                 </div>
               ))}
             </div>
 
-            {/* Submit Button */}
-            <button 
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-white hover:bg-gray-200 text-[#070707] transition-all rounded-xl px-8 py-5 font-bold text-sm tracking-wide shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:-translate-y-1 flex items-center justify-center gap-2 group mt-8 disabled:opacity-50 disabled:hover:translate-y-0"
-            >
-              {isSubmitting ? (
-                <>
-                  <span className="w-5 h-5 border-2 border-[#070707]/30 border-t-[#070707] rounded-full animate-spin"></span>
-                  SAVING...
-                </>
-              ) : (
-                <>
-                  <Save className="w-4 h-4" />
-                  SAVE EVENT
-                </>
+            <div className="w-full h-px bg-white/5 my-6"></div>
+
+            {/* Custom Registration Fields Builder */}
+            <div className="mb-3 flex items-center justify-between">
+              <div>
+                <h4 className="text-white text-sm font-bold tracking-wide uppercase">Custom Registration Fields</h4>
+                <p className="text-gray-500 text-xs mt-1">Name, Email, Phone, Semester, and Dept are included automatically.</p>
+              </div>
+              <button 
+                type="button"
+                onClick={addCustomField}
+                className="flex items-center gap-1 text-[var(--color-primary)] text-xs font-bold uppercase tracking-widest hover:text-white transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" /> Add Field
+              </button>
+            </div>
+            
+            <div className="flex flex-col gap-4 mb-8">
+              {(formData.customFields || []).map((field, idx) => (
+                <div key={idx} className="bg-black/30 border border-white/5 rounded-xl p-4 flex flex-col gap-4">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-1 flex flex-col gap-2">
+                      <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Field Label</label>
+                      <input 
+                        type="text" 
+                        placeholder="e.g. GitHub Link or Team Name"
+                        value={field.label}
+                        onChange={(e) => updateCustomField(idx, 'label', e.target.value)}
+                        className="bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[var(--color-primary)]"
+                        required
+                      />
+                    </div>
+                    <div className="w-32 flex flex-col gap-2">
+                      <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Type</label>
+                      <select 
+                        value={field.type}
+                        onChange={(e) => updateCustomField(idx, 'type', e.target.value)}
+                        className="bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[var(--color-primary)]"
+                      >
+                        <option value="text">Text</option>
+                        <option value="number">Number</option>
+                        <option value="select">Dropdown</option>
+                      </select>
+                    </div>
+                    <div className="flex flex-col gap-2 justify-center pt-6">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" checked={field.required} onChange={(e) => updateCustomField(idx, 'required', e.target.checked)} className="rounded bg-black border-white/20 accent-[var(--color-primary)]" />
+                        <span className="text-xs text-gray-400">Required</span>
+                      </label>
+                    </div>
+                    <button 
+                      type="button"
+                      onClick={() => removeCustomField(idx)}
+                      className="mt-6 p-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                  {field.type === 'select' && (
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Dropdown Options (Comma Separated)</label>
+                      <input 
+                        type="text" 
+                        placeholder="e.g. Beginner, Intermediate, Advanced"
+                        value={field.options || ''}
+                        onChange={(e) => updateCustomField(idx, 'options', e.target.value)}
+                        className="bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[var(--color-primary)]"
+                        required
+                      />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              {editingEventId && (
+                <button
+                  type="button"
+                  onClick={cancelEdit}
+                  className="px-6 py-4 rounded-xl border border-white/10 text-white font-bold text-sm tracking-wide hover:bg-white/5 transition-all"
+                >
+                  Cancel
+                </button>
               )}
-            </button>
+              <button 
+                type="submit"
+                disabled={isSubmitting}
+                className="flex-1 bg-white hover:bg-gray-200 text-[#070707] transition-all rounded-xl px-8 py-4 font-bold text-sm tracking-wide shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:-translate-y-0.5 flex items-center justify-center gap-2 group disabled:opacity-50 disabled:hover:translate-y-0"
+              >
+                {isSubmitting ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-[#070707]/30 border-t-[#070707] rounded-full animate-spin"></span>
+                    SAVING...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    {editingEventId ? 'UPDATE EVENT' : 'CREATE EVENT'}
+                  </>
+                )}
+              </button>
+            </div>
 
           </div>
         </div>
 
       </motion.form>
+
+      {/* Directory & Management Section */}
+      <div className="w-full">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles className="w-4 h-4 text-[var(--color-primary)]" />
+              <h2 className="text-2xl font-bold text-white tracking-tight">Event Directory & Actions</h2>
+            </div>
+            <p className="text-gray-400 text-xs">
+              Manage existing competitions ({filteredEvents.length} shown). Click Edit to modify or Delete to remove.
+            </p>
+          </div>
+
+          {/* Search bar */}
+          <div className="relative w-full md:w-72">
+            <Search className="w-4 h-4 text-gray-500 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input 
+              type="text"
+              placeholder="Search events..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-black/40 border border-white/10 rounded-full pl-10 pr-4 py-2.5 text-xs text-white placeholder:text-gray-500 focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+            />
+          </div>
+        </div>
+
+        {/* Category Filter Pills for Admin Table */}
+        <div className="flex flex-wrap items-center gap-2 mb-6">
+          {[
+            { id: 'all', label: 'All' },
+            { id: 'coding', label: 'Coding' },
+            { id: 'esports', label: 'eSports' },
+            { id: 'general', label: 'General' },
+          ].map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategoryFilter(cat.id)}
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider uppercase transition-all ${
+                activeCategoryFilter === cat.id
+                  ? 'bg-[var(--color-primary)] text-white shadow-[0_0_15px_rgba(255,51,0,0.35)]'
+                  : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 border border-white/5'
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Events Grid / Table */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <AnimatePresence mode="popLayout">
+            {filteredEvents.map((event) => {
+              const isCurrentlyEditing = editingEventId === event.id;
+
+              return (
+                <motion.div
+                  key={event.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className={`flux-card p-5 rounded-2xl flex flex-col justify-between relative transition-all duration-300 ${
+                    isCurrentlyEditing 
+                      ? 'border-[var(--color-primary)] shadow-[0_0_25px_rgba(255,51,0,0.3)] bg-[var(--color-primary)]/[0.03]' 
+                      : 'border-white/5 hover:border-white/20'
+                  }`}
+                >
+                  <div>
+                    {/* Header: Track & Badge */}
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-primary)]">
+                        {event.categoryLabel || event.category || 'EVENT'}
+                      </span>
+                      <span className="text-[10px] font-semibold bg-white/5 px-2.5 py-0.5 rounded-full text-gray-300 uppercase tracking-wider">
+                        {event.type}
+                      </span>
+                    </div>
+
+                    {/* Title */}
+                    <h4 className="text-white font-bold text-lg mb-2 tracking-tight line-clamp-1">
+                      {event.title}
+                    </h4>
+
+                    {/* Meta info */}
+                    <div className="flex flex-col gap-1 text-xs text-gray-400 mb-4">
+                      {event.time && (
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-3.5 h-3.5 text-gray-500 shrink-0" />
+                          <span className="truncate">{event.time}</span>
+                        </div>
+                      )}
+                      {event.venue && (
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-3.5 h-3.5 text-gray-500 shrink-0" />
+                          <span className="truncate">{event.venue}</span>
+                        </div>
+                      )}
+                      {event.prizePool && (
+                        <div className="flex items-center gap-2 text-[var(--color-primary)] font-semibold">
+                          <Trophy className="w-3.5 h-3.5 shrink-0" />
+                          <span>₹{event.prizePool}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Actions: Edit & Delete Buttons */}
+                  <div className="pt-3 border-t border-white/5 flex items-center justify-between gap-2">
+                    <button
+                      onClick={() => startEditEvent(event)}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+                        isCurrentlyEditing 
+                          ? 'bg-[var(--color-primary)] text-white' 
+                          : 'bg-white/5 hover:bg-white/15 text-gray-200 border border-white/10 hover:border-white/20'
+                      }`}
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                      {isCurrentlyEditing ? 'Editing' : 'Edit'}
+                    </button>
+
+                    <button
+                      onClick={() => handleDeleteEvent(event)}
+                      className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold uppercase tracking-wider bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/20 hover:border-red-500/40 transition-all"
+                      title="Delete event"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      Delete
+                    </button>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </div>
+
+        {filteredEvents.length === 0 && (
+          <div className="text-center py-12 flux-card rounded-2xl">
+            <p className="text-gray-500 text-sm">No events found matching "{searchTerm}".</p>
+          </div>
+        )}
+      </div>
+      </>
+      ) : (
+      <div className="w-full">
+        {/* Registration Viewer Tab */}
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8 bg-white/5 border border-white/10 rounded-2xl p-6">
+          <div className="flex flex-col gap-2 w-full md:w-1/3">
+            <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Select Event</label>
+            <select
+              value={selectedEventId}
+              onChange={(e) => fetchRegistrations(e.target.value)}
+              className="bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[var(--color-primary)] transition-colors w-full"
+            >
+              <option value="">-- Choose an event --</option>
+              {allEvents.map(ev => (
+                <option key={ev.id} value={ev.id}>{ev.title}</option>
+              ))}
+            </select>
+          </div>
+          
+          <div className="flex items-center gap-4 mt-6 md:mt-0">
+            <div className="text-right">
+              <p className="text-2xl font-bold text-white">{registrations.length}</p>
+              <p className="text-[10px] text-gray-500 uppercase tracking-widest">Total Registrations</p>
+            </div>
+            {registrations.length > 0 && (
+              <button 
+                onClick={exportToCSV}
+                className="flex items-center gap-2 bg-[var(--color-primary)] hover:bg-[var(--color-secondary)] text-white px-5 py-3 rounded-xl font-bold text-sm tracking-wide transition-all shadow-[0_0_20px_rgba(255,51,0,0.3)] hover:-translate-y-0.5"
+              >
+                <Download className="w-4 h-4" />
+                Export CSV
+              </button>
+            )}
+          </div>
+        </div>
+
+        {selectedEventId && (
+          <div className="bg-black/20 border border-white/10 rounded-2xl overflow-hidden overflow-x-auto">
+            {isLoadingRegs ? (
+              <div className="p-12 flex justify-center">
+                <div className="w-8 h-8 border-4 border-white/20 border-t-[var(--color-primary)] rounded-full animate-spin"></div>
+              </div>
+            ) : registrations.length === 0 ? (
+              <div className="p-12 text-center text-gray-500">
+                <Users className="w-8 h-8 mx-auto mb-3 opacity-20" />
+                No registrations found for this event yet.
+              </div>
+            ) : (
+              <table className="w-full text-left text-sm text-gray-300">
+                <thead className="text-xs uppercase bg-white/5 text-gray-400">
+                  <tr>
+                    <th className="px-6 py-4">Name</th>
+                    <th className="px-6 py-4">Email</th>
+                    <th className="px-6 py-4">Phone</th>
+                    <th className="px-6 py-4">Sem/Dept</th>
+                    <th className="px-6 py-4">Date</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {registrations.map((reg) => (
+                    <tr key={reg.id} className="hover:bg-white/[0.02]">
+                      <td className="px-6 py-4 font-bold text-white">{reg.name}</td>
+                      <td className="px-6 py-4">{reg.email}</td>
+                      <td className="px-6 py-4">{reg.phone}</td>
+                      <td className="px-6 py-4">{reg.semester} / {reg.department}</td>
+                      <td className="px-6 py-4">{reg.timestamp?.toDate ? reg.timestamp.toDate().toLocaleDateString() : 'N/A'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )}
+      </div>
+      )}
     </div>
   );
 };
