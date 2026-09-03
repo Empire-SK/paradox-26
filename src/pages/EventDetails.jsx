@@ -11,6 +11,7 @@ const EventDetails = () => {
   const { eventId } = useParams();
   const [event, setEvent] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -107,10 +108,18 @@ const EventDetails = () => {
                 style={{ backgroundImage: `url(${event.posterUrl})`, backgroundPosition: 'center', backgroundSize: 'cover' }}
               ></div>
               
+              {/* Loading Spinner */}
+              {!isImageLoaded && (
+                <div className="absolute inset-0 flex items-center justify-center z-20 bg-black/20 backdrop-blur-sm rounded-[32px]">
+                  <div className="w-10 h-10 border-4 border-white/10 border-t-[var(--color-primary)] rounded-full animate-spin"></div>
+                </div>
+              )}
+              
               <img
                 src={event.posterUrl}
                 alt={event.title}
-                className="relative z-10 w-full h-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-lg group-hover:scale-[1.02] transition-transform duration-700"
+                onLoad={() => setIsImageLoaded(true)}
+                className={`relative z-10 w-full h-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-lg group-hover:scale-[1.02] transition-all duration-700 ${isImageLoaded ? 'opacity-100' : 'opacity-0 scale-95'}`}
               />
             </div>
           </motion.div>

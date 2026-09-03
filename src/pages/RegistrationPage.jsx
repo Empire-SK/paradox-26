@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Send, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Send, CheckCircle, Upload } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { db } from '../firebase';
 import { doc, getDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -23,6 +23,9 @@ const RegistrationPage = () => {
     department: '',
   });
   const [customData, setCustomData] = useState({});
+  const [paymentImage, setPaymentImage] = useState(null);
+  const [paymentPreview, setPaymentPreview] = useState(null);
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -68,16 +71,72 @@ const RegistrationPage = () => {
     setCustomData({ ...customData, [fieldId]: e.target.value });
   };
 
+  const handlePaymentImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setIsPreviewLoading(true);
+      setPaymentImage(file);
+      setPaymentPreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!paymentImage) {
+      alert("Please upload a screenshot of your payment to continue.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
+      let paymentScreenshotUrl = '';
+      if (paymentImage) {
+        try {
+          const fileToBase64 = (file) => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = error => reject(error);
+          });
+          
+          const base64String = await fileToBase64(paymentImage);
+          
+          const payload = {
+            base64: base64String,
+            filename: `${eventId}-${Date.now()}-${paymentImage.name}`,
+            mimeType: paymentImage.type
+          };
+
+          const response = await fetch('https://script.google.com/macros/s/AKfycbwE-63_6k2oBHtQB65zzTxw-dxeXlses0FowN2nf9VzeQGtZKw-sgK73abpENxdNO-j/exec', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'text/plain;charset=utf-8',
+            },
+            body: JSON.stringify(payload)
+          });
+          
+          const data = await response.json();
+          if (data.success) {
+            paymentScreenshotUrl = data.url;
+          } else {
+            throw new Error(data.error || 'Google Drive upload failed');
+          }
+        } catch (imgError) {
+          console.error("Payment upload error:", imgError);
+          alert("Could not upload payment screenshot: " + imgError.message);
+          setIsSubmitting(false);
+          return; // Stop form submission if payment upload fails
+        }
+      }
+
       await addDoc(collection(db, 'registrations'), {
         eventId,
         eventTitle: event.title,
         ...formData,
         additionalData: customData,
+        paymentScreenshotUrl,
         timestamp: serverTimestamp()
       });
       setSuccess(true);
@@ -109,11 +168,23 @@ const RegistrationPage = () => {
             <CheckCircle className="w-10 h-10" />
           </div>
           <h2 className="text-3xl font-bold text-white mb-2">Registered!</h2>
-          <p className="text-gray-400 mb-8">You have successfully registered for {event.title}. We'll see you in the grid.</p>
+          <p className="text-gray-400 mb-8">You have successfully registered for {event?.title}. We'll see you in the grid.</p>
           <Link to={`/events/${eventId}`} className="inline-block bg-white text-black font-bold px-8 py-3 rounded-full hover:bg-gray-200 transition-colors">
             Back to Event
           </Link>
         </motion.div>
+      </div>
+    );
+  }
+
+  if (!event) {
+    return (
+      <div className="w-full min-h-screen bg-[var(--color-bg-dark)] flex flex-col items-center justify-center p-6 text-center text-white">
+        <h2 className="text-2xl font-bold mb-4">Event Not Found</h2>
+        <p className="text-gray-400 mb-8">The event you are looking for does not exist or there was a problem loading it.</p>
+        <Link to="/" className="inline-block bg-[var(--color-primary)] text-white font-bold px-8 py-3 rounded-full hover:bg-[var(--color-secondary)] transition-colors">
+          Return to Home
+        </Link>
       </div>
     );
   }
@@ -203,6 +274,50 @@ const RegistrationPage = () => {
                 ))}
               </div>
             )}
+
+            {/* Payment Screenshot */}
+            <div className="mt-4 pt-6 border-t border-white/10 flex flex-col gap-4">
+              <div>
+                <h3 className="text-white font-bold text-lg mb-1">Payment Verification</h3>
+                <p className="text-gray-400 text-xs">Please upload a screenshot of your successful payment transaction.</p>
+              </div>
+              
+              <div className="relative rounded-2xl border-2 border-dashed border-white/20 bg-black/30 hover:bg-black/50 transition-colors flex items-center justify-center overflow-hidden group cursor-pointer min-h-[160px]">
+                <input 
+                  required
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handlePaymentImageChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+                />
+                
+                {paymentPreview ? (
+                  <div className="relative w-full h-full group flex justify-center py-4">
+                    {isPreviewLoading && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10 rounded-2xl">
+                        <div className="w-8 h-8 border-4 border-white/20 border-t-[var(--color-primary)] rounded-full animate-spin"></div>
+                      </div>
+                    )}
+                    <img 
+                      src={paymentPreview} 
+                      alt="Payment Preview" 
+                      className={`max-h-[200px] object-contain transition-opacity duration-300 ${isPreviewLoading ? 'opacity-0' : 'opacity-100'}`} 
+                      onLoad={() => setIsPreviewLoading(false)}
+                    />
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 text-white">
+                      <Upload className="w-6 h-6" />
+                      <span className="text-xs font-bold uppercase tracking-wider">Change Image</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-3 text-gray-500 group-hover:text-[var(--color-primary)] transition-colors py-8">
+                    <Upload className="w-8 h-8" />
+                    <span className="text-xs font-bold tracking-widest uppercase">Upload Screenshot</span>
+                    <span className="text-[10px] text-gray-600">JPG, PNG or WebP</span>
+                  </div>
+                )}
+              </div>
+            </div>
 
             <div className="mt-8">
               <button 

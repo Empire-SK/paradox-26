@@ -1,20 +1,59 @@
 import { Menu, X, ChevronRight } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import heroImage from '../assets/logo.png';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY < 100) {
+        setIsVisible(true);
+        setIsScrolled(false);
+      } else {
+        setIsScrolled(true);
+        if (currentScrollY > lastScrollY) {
+          setIsVisible(false); // Hide on scroll down
+        } else {
+          setIsVisible(true);  // Show on scroll up
+        }
+      }
+      setLastScrollY(currentScrollY);
+    };
+
+    const handleMouseMove = (e) => {
+      if (e.clientY < 80) {
+        setIsVisible(true); // Pop up when mouse is near top
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('mousemove', handleMouseMove);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [lastScrollY]);
 
   return (
     <>
-      <header className="fixed top-0 w-full z-[40] border-b border-white/5 bg-[var(--color-bg-dark)]/80 backdrop-blur-xl">
+      <header 
+        className={`fixed top-0 w-full z-[40] transition-all duration-300 ease-in-out ${
+          isVisible ? 'translate-y-0' : '-translate-y-full'
+        } ${isScrolled ? 'bg-[var(--color-bg-dark)]/80 backdrop-blur-xl border-b border-white/5' : 'bg-transparent'}`}
+      >
         <div className="max-w-[1600px] mx-auto px-6 h-20 flex items-center justify-between">
           
           {/* Left: Brand */}
           <a href="/" className="flex items-center gap-3 no-underline">
             {/* Imitating the Fluxora logo with Paradox logo */}
             <img src={heroImage} alt="Paradox Logo" className="h-8 w-auto filter drop-shadow-[0_0_8px_rgba(255,51,0,0.6)]" />
-            <span className="font-sans font-medium text-xl tracking-tight text-white hidden sm:block">Paradox</span>
           </a>
           
           {/* Center: Navigation Pill Container */}
@@ -26,9 +65,9 @@ const Navbar = () => {
 
           {/* Right: Action Button */}
           <div className="hidden lg:flex">
-            <button className="bg-white hover:bg-gray-100 text-[#070707] font-sans font-semibold text-sm px-6 py-2.5 rounded-lg transition-colors shadow-[0_0_20px_rgba(255,255,255,0.15)]">
+            <a href="/#events" className="bg-white hover:bg-gray-100 text-[#070707] font-sans font-semibold text-sm px-6 py-2.5 rounded-lg transition-colors shadow-[0_0_20px_rgba(255,255,255,0.15)] inline-block">
               Register Now
-            </button>
+            </a>
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -82,9 +121,9 @@ const Navbar = () => {
 
             {/* Footer */}
             <div className="mt-auto flex flex-col gap-6">
-              <button className="flux-btn-primary w-full group">
+              <a href="/#events" onClick={() => setIsOpen(false)} className="flux-btn-primary w-full group flex justify-center items-center">
                 <span>REGISTER NOW</span>
-              </button>
+              </a>
               <div className="text-center">
                 <p className="font-sans text-xs text-white/50 tracking-widest">
                   JOIN PARADOX 2026

@@ -4,9 +4,8 @@ import {
   Upload, Calendar, Clock, MapPin, Trophy, Users, Save, X, Plus, 
   Edit3, Trash2, Search, RotateCcw, Check, Sparkles, Layers, ArrowUp, Download, Settings
 } from 'lucide-react';
-import { db, storage } from '../firebase';
+import { db } from '../firebase';
 import { collection, doc, setDoc, onSnapshot, query, where, getDocs } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { EVENTS } from '../data/eventsData';
 
 const initialFormState = {
@@ -167,7 +166,7 @@ const AdminPage = () => {
     const customFields = currentEvent?.customFields || [];
 
     // Base headers
-    const headers = ['Name', 'Email', 'Phone', 'Semester', 'Department', 'Date Registered'];
+    const headers = ['Name', 'Email', 'Phone', 'Semester', 'Department', 'Date Registered', 'Payment Image URL'];
     
     // Add custom field headers
     customFields.forEach(field => {
@@ -183,7 +182,8 @@ const AdminPage = () => {
         `"${reg.phone || ''}"`,
         `"${reg.semester || ''}"`,
         `"${reg.department || ''}"`,
-        `"${dateStr}"`
+        `"${dateStr}"`,
+        `"${reg.paymentScreenshotUrl || ''}"`
       ];
 
       // Add custom field values
@@ -290,14 +290,40 @@ const AdminPage = () => {
 
       let finalPosterUrl = formData.posterUrl;
 
-      // Upload image to Firebase Storage if new file selected
+      // Upload image to Google Drive if new file selected
       if (imageFile) {
         try {
-          const imageRef = ref(storage, `posters/${targetId}-${Date.now()}`);
-          await withTimeout(uploadBytes(imageRef, imageFile), 6000, "Image upload timed out.");
-          finalPosterUrl = await getDownloadURL(imageRef);
+          const fileToBase64 = (file) => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = error => reject(error);
+          });
+          
+          const base64String = await fileToBase64(imageFile);
+          
+          const payload = {
+            base64: base64String,
+            filename: `poster-${targetId}-${Date.now()}-${imageFile.name}`,
+            mimeType: imageFile.type
+          };
+
+          const response = await fetch('https://script.google.com/macros/s/AKfycbwE-63_6k2oBHtQB65zzTxw-dxeXlses0FowN2nf9VzeQGtZKw-sgK73abpENxdNO-j/exec', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'text/plain;charset=utf-8',
+            },
+            body: JSON.stringify(payload)
+          });
+          
+          const data = await response.json();
+          if (data.success) {
+            finalPosterUrl = data.url;
+          } else {
+            throw new Error(data.error || 'Google Drive upload failed');
+          }
         } catch (imgError) {
-          console.warn("Storage upload failed...", imgError);
+          console.warn("Google Drive upload failed...", imgError);
           alert("Warning: Could not upload the image... " + imgError.message);
         }
       }
@@ -948,6 +974,7 @@ const AdminPage = () => {
                     <th className="px-6 py-4">Phone</th>
                     <th className="px-6 py-4">Sem/Dept</th>
                     <th className="px-6 py-4">Date</th>
+                    <th className="px-6 py-4">Payment</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
@@ -958,6 +985,15 @@ const AdminPage = () => {
                       <td className="px-6 py-4">{reg.phone}</td>
                       <td className="px-6 py-4">{reg.semester} / {reg.department}</td>
                       <td className="px-6 py-4">{reg.timestamp?.toDate ? reg.timestamp.toDate().toLocaleDateString() : 'N/A'}</td>
+                      <td className="px-6 py-4">
+                        {reg.paymentScreenshotUrl ? (
+                          <a href={reg.paymentScreenshotUrl} target="_blank" rel="noreferrer" className="text-[var(--color-primary)] hover:underline text-xs font-bold uppercase tracking-wider">
+                            View Image
+                          </a>
+                        ) : (
+                          <span className="text-gray-500 text-xs">N/A</span>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
