@@ -1,7 +1,9 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useSpring } from 'framer-motion';
+import { db } from '../firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
-const scheduleData = [
+const fallbackSchedule = [
   { time: '09:30 AM', title: 'INAUGURATION', location: 'Main Stage', desc: 'Opening ceremony with keynote speakers' },
   { time: '09:45 AM', title: 'SPEED TYPING & DEBATE', location: 'IP Lab / CSLH5', desc: 'Fast-paced typing and debate competition' },
   { time: '10:00 AM', title: 'C CHALLENGE & CODE RELAY', location: 'BC Lab / MM Lab', desc: 'Coding challenges and team-based sequential programming' },
@@ -9,6 +11,26 @@ const scheduleData = [
 
 const ScheduleSection = () => {
   const containerRef = useRef(null);
+  const [scheduleData, setScheduleData] = useState([]);
+  
+  useEffect(() => {
+    const fetchSchedule = async () => {
+      try {
+        const docRef = doc(db, "siteData", "schedule");
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists() && docSnap.data().items) {
+          setScheduleData(docSnap.data().items);
+        } else {
+          setScheduleData(fallbackSchedule);
+        }
+      } catch (error) {
+        console.error("Error fetching schedule:", error);
+        setScheduleData(fallbackSchedule);
+      }
+    };
+    fetchSchedule();
+  }, []);
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start center", "end center"]

@@ -35,6 +35,14 @@ const AdminPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingEventId, setEditingEventId] = useState(null);
 
+  // Authentication State
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return sessionStorage.getItem('adminAuth') === 'true';
+  });
+  const [authUsername, setAuthUsername] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authError, setAuthError] = useState('');
+
   // Events list & filter state
   const [allEvents, setAllEvents] = useState(EVENTS);
   const [searchTerm, setSearchTerm] = useState('');
@@ -45,6 +53,10 @@ const AdminPage = () => {
   const [selectedEventId, setSelectedEventId] = useState('');
   const [registrations, setRegistrations] = useState([]);
   const [isLoadingRegs, setIsLoadingRegs] = useState(false);
+
+  // Schedule state
+  const [scheduleItems, setScheduleItems] = useState([]);
+  const [isSavingSchedule, setIsSavingSchedule] = useState(false);
 
   useEffect(() => {
     // Listen for real-time updates from Firebase
@@ -82,7 +94,15 @@ const AdminPage = () => {
       console.error("Error fetching live Firebase events:", error);
     });
 
-    return () => unsubscribe();
+    const unsubSchedule = onSnapshot(doc(db, "siteData", "schedule"), (docSnap) => {
+      if (docSnap.exists() && docSnap.data().items) {
+        setScheduleItems(docSnap.data().items);
+      } else {
+        setScheduleItems([]);
+      }
+    });
+
+    return () => { unsubscribe(); unsubSchedule(); };
   }, []);
 
   const handleInputChange = (e) => {
@@ -125,6 +145,36 @@ const AdminPage = () => {
   const removeCustomField = (index) => {
     const newFields = (formData.customFields || []).filter((_, i) => i !== index);
     setFormData(prev => ({ ...prev, customFields: newFields }));
+  };
+  // -------------------------------------
+  
+  // --- Schedule Logic ---
+  const handleAddScheduleItem = () => {
+    setScheduleItems(prev => [...prev, { id: `sch_${Date.now()}`, time: '', title: '', location: '', desc: '' }]);
+  };
+
+  const handleUpdateScheduleItem = (index, field, value) => {
+    const newItems = [...scheduleItems];
+    newItems[index][field] = value;
+    setScheduleItems(newItems);
+  };
+
+  const handleRemoveScheduleItem = (index) => {
+    const newItems = scheduleItems.filter((_, i) => i !== index);
+    setScheduleItems(newItems);
+  };
+
+  const handleSaveSchedule = async () => {
+    setIsSavingSchedule(true);
+    try {
+      await setDoc(doc(db, "siteData", "schedule"), { items: scheduleItems });
+      alert("Schedule saved successfully!");
+    } catch (err) {
+      console.error("Error saving schedule:", err);
+      alert("Error saving schedule: " + err.message);
+    } finally {
+      setIsSavingSchedule(false);
+    }
   };
   // -------------------------------------
 
@@ -370,6 +420,81 @@ const AdminPage = () => {
     return matchesCategory && matchesSearch;
   });
 
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (authUsername === 'admin' && authPassword === 'lancecek@2026') {
+      sessionStorage.setItem('adminAuth', 'true');
+      setIsAuthenticated(true);
+      setAuthError('');
+    } else {
+      setAuthError('Invalid username or password');
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="w-full min-h-screen bg-[var(--color-bg-dark)] pt-32 pb-24 relative overflow-hidden flex items-center justify-center px-6">
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[radial-gradient(circle,rgba(255,51,0,0.05)_0%,transparent_70%)] pointer-events-none rounded-full blur-[80px] z-0 mix-blend-screen"></div>
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-black/40 border border-white/10 p-8 md:p-12 rounded-[32px] max-w-md w-full backdrop-blur-xl relative z-10 shadow-[0_20px_60px_rgba(0,0,0,0.6)]"
+        >
+          <div className="flex flex-col items-center mb-8">
+            <div className="w-16 h-16 bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 rounded-full flex items-center justify-center mb-6 text-[var(--color-primary)] shadow-[0_0_20px_rgba(255,51,0,0.2)]">
+              <Settings className="w-7 h-7" />
+            </div>
+            <h2 className="text-2xl font-sans font-bold text-white tracking-wide">Admin Portal</h2>
+            <p className="text-gray-400 text-sm mt-2">Authorized access only</p>
+          </div>
+          
+          <form onSubmit={handleLogin} className="flex flex-col gap-6">
+            <div className="flex flex-col gap-2">
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Username</label>
+              <input 
+                type="text" 
+                value={authUsername}
+                onChange={(e) => setAuthUsername(e.target.value)}
+                className="bg-black/50 border border-white/10 rounded-xl px-4 py-3.5 text-white text-sm focus:outline-none focus:border-[var(--color-primary)] transition-colors w-full"
+                autoFocus
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Password</label>
+              <input 
+                type="password" 
+                value={authPassword}
+                onChange={(e) => setAuthPassword(e.target.value)}
+                className="bg-black/50 border border-white/10 rounded-xl px-4 py-3.5 text-white text-sm focus:outline-none focus:border-[var(--color-primary)] transition-colors w-full"
+              />
+            </div>
+            
+            <AnimatePresence>
+              {authError && (
+                <motion.p 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="text-red-400 text-xs font-bold text-center bg-red-500/10 py-2 rounded-lg border border-red-500/20"
+                >
+                  {authError}
+                </motion.p>
+              )}
+            </AnimatePresence>
+            
+            <button 
+              type="submit"
+              className="mt-2 bg-[var(--color-primary)] hover:bg-[var(--color-secondary)] text-white w-full py-4 rounded-xl font-bold text-sm tracking-widest uppercase transition-all shadow-[0_0_20px_rgba(255,51,0,0.3)] hover:shadow-[0_0_30px_rgba(255,51,0,0.5)] flex items-center justify-center gap-2"
+            >
+              Sign In
+              <ArrowUp className="w-4 h-4 rotate-45" />
+            </button>
+          </form>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen pt-32 pb-24 px-6 lg:px-12 relative z-10 w-full max-w-[1300px] mx-auto">
       
@@ -417,16 +542,23 @@ const AdminPage = () => {
         )}
       </motion.div>
 
-      {/* Tabs */}
-      <div className="flex gap-4 mb-8 border-b border-white/10 pb-4">
-        <button
-          onClick={() => setActiveTab('events')}
+      {/* Tab Navigation */}
+      <div className="flex flex-wrap items-center gap-4 mb-8">
+        <button 
+          onClick={() => { setActiveTab('events'); setEditingEventId(null); setFormData(initialFormState); }}
           className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'events' ? 'bg-[var(--color-primary)] text-white shadow-[0_0_20px_rgba(255,51,0,0.3)]' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'}`}
         >
-          <Settings className="w-4 h-4" />
+          <Sparkles className="w-4 h-4" />
           Event Manager
         </button>
-        <button
+        <button 
+          onClick={() => { setActiveTab('schedule'); }}
+          className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'schedule' ? 'bg-[var(--color-primary)] text-white shadow-[0_0_20px_rgba(255,51,0,0.3)]' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'}`}
+        >
+          <Clock className="w-4 h-4" />
+          Schedule Manager
+        </button>
+        <button 
           onClick={() => { setActiveTab('registrations'); fetchRegistrations(''); }}
           className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'registrations' ? 'bg-[var(--color-primary)] text-white shadow-[0_0_20px_rgba(255,51,0,0.3)]' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'}`}
         >
@@ -919,6 +1051,98 @@ const AdminPage = () => {
         )}
       </div>
       </>
+      ) : activeTab === 'schedule' ? (
+      <div className="w-full max-w-4xl mx-auto flex flex-col gap-8 mb-20">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-white mb-1">Schedule Management</h2>
+            <p className="text-sm text-gray-400">Add, edit, or delete events from the schedule timeline.</p>
+          </div>
+          <button 
+            onClick={handleSaveSchedule}
+            disabled={isSavingSchedule}
+            className="flex items-center gap-2 bg-[var(--color-primary)] hover:bg-[var(--color-secondary)] text-white px-6 py-3 rounded-xl font-bold text-sm tracking-wide transition-all shadow-[0_0_20px_rgba(255,51,0,0.3)] disabled:opacity-50"
+          >
+            <Save className="w-4 h-4" />
+            {isSavingSchedule ? 'Saving...' : 'Save Schedule'}
+          </button>
+        </div>
+
+        <div className="flux-card p-6 flex flex-col gap-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-white text-sm font-bold tracking-wide uppercase">Timeline Events ({scheduleItems.length})</h3>
+            <button 
+              onClick={handleAddScheduleItem}
+              className="flex items-center gap-1.5 text-xs font-bold text-[var(--color-primary)] hover:text-[var(--color-secondary)] transition-colors uppercase tracking-widest"
+            >
+              <Plus className="w-4 h-4" /> Add Item
+            </button>
+          </div>
+
+          {scheduleItems.length === 0 ? (
+            <div className="text-center py-12 bg-black/20 rounded-2xl border border-white/5">
+              <p className="text-gray-500 text-sm">No schedule items found. Click "Add Item" to create one.</p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {scheduleItems.map((item, index) => (
+                <div key={item.id || index} className="flex flex-col gap-4 p-5 bg-black/40 border border-white/10 rounded-xl relative group">
+                  <button 
+                    onClick={() => handleRemoveScheduleItem(index)}
+                    className="absolute top-4 right-4 text-red-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+                    title="Delete item"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Time *</label>
+                      <input 
+                        type="text" 
+                        value={item.time} 
+                        onChange={(e) => handleUpdateScheduleItem(index, 'time', e.target.value)}
+                        placeholder="e.g. 09:30 AM"
+                        className="bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Title *</label>
+                      <input 
+                        type="text" 
+                        value={item.title} 
+                        onChange={(e) => handleUpdateScheduleItem(index, 'title', e.target.value)}
+                        placeholder="e.g. INAUGURATION"
+                        className="bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5 md:col-span-2">
+                      <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Location *</label>
+                      <input 
+                        type="text" 
+                        value={item.location} 
+                        onChange={(e) => handleUpdateScheduleItem(index, 'location', e.target.value)}
+                        placeholder="e.g. Main Stage"
+                        className="bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5 md:col-span-2">
+                      <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Description *</label>
+                      <textarea 
+                        value={item.desc} 
+                        onChange={(e) => handleUpdateScheduleItem(index, 'desc', e.target.value)}
+                        placeholder="Short description..."
+                        rows="2"
+                        className="bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-[var(--color-primary)] transition-colors resize-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
       ) : (
       <div className="w-full">
         {/* Registration Viewer Tab */}
