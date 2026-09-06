@@ -238,8 +238,8 @@ const EventsSection = () => {
                       
                       {/* Hover Action */}
                       <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between text-gray-500 group-hover:text-white transition-colors duration-300">
-                        <span className="text-xs font-medium tracking-wider uppercase">
-                          {event.status || 'Register Now'}
+                        <span className={`text-xs font-medium tracking-wider uppercase ${event.registrationClosed ? 'text-amber-500/80 font-bold' : ''}`}>
+                          {event.registrationClosed ? 'Registration Closed' : (event.status || 'Register Now')}
                         </span>
                         <div className="w-7 h-7 rounded-full bg-white/5 group-hover:bg-[var(--color-primary)]/20 flex items-center justify-center transition-colors duration-300">
                           <ArrowRight className="w-3.5 h-3.5 text-gray-400 group-hover:text-[var(--color-primary)] group-hover:translate-x-0.5 transition-all duration-300" />

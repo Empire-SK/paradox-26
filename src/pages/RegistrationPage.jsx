@@ -189,6 +189,18 @@ const RegistrationPage = () => {
     );
   }
 
+  if (event.registrationClosed) {
+    return (
+      <div className="w-full min-h-screen bg-[var(--color-bg-dark)] flex flex-col items-center justify-center p-6 text-center text-white">
+        <h2 className="text-3xl font-bold mb-4">Registration Closed</h2>
+        <p className="text-gray-400 mb-8">We are no longer accepting registrations for {event.title}.</p>
+        <Link to={`/events/${eventId}`} className="inline-block bg-white text-black font-bold px-8 py-3 rounded-full hover:bg-gray-200 transition-colors">
+          Back to Event
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full min-h-screen bg-[var(--color-bg-dark)] pt-32 pb-24 relative overflow-hidden">
       <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[radial-gradient(circle,rgba(255,51,0,0.05)_0%,transparent_70%)] pointer-events-none rounded-full blur-[80px] z-0 mix-blend-screen"></div>

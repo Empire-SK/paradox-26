@@ -6,36 +6,36 @@ import { db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 
 import { EVENTS_BY_ID } from '../data/eventsData';
+import GuidelinesModal from '../components/GuidelinesModal';
 
 const EventDetails = () => {
   const { eventId } = useParams();
   const [event, setEvent] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [showGuidelines, setShowGuidelines] = useState(false);
 
   useEffect(() => {
     const fetchEvent = async () => {
-      // 1. Try to find in standard events data
-      if (EVENTS_BY_ID[eventId]) {
-        setEvent(EVENTS_BY_ID[eventId]);
-        setIsLoading(false);
-        return;
-      }
-      
-      // 2. If not found, check Firebase
       try {
+        let eventData = EVENTS_BY_ID[eventId] || null;
+
+        // Check Firebase for custom overrides or new custom events
         const docRef = doc(db, "customEvents", eventId);
         const docSnap = await getDoc(docRef);
-        
-        if (docSnap.exists()) {
-          setEvent(docSnap.data());
-        } else {
-          // 3. Fallback to first available event
-          setEvent(EVENTS_BY_ID['c-challenge'] || null);
+
+        if (docSnap.exists() && !docSnap.data().deleted) {
+          eventData = eventData ? { ...eventData, ...docSnap.data() } : docSnap.data();
         }
+
+        if (!eventData && EVENTS_BY_ID['c-challenge']) {
+          eventData = EVENTS_BY_ID['c-challenge'];
+        }
+
+        setEvent(eventData);
       } catch (error) {
         console.error("Error fetching event details:", error);
-        setEvent(EVENTS_BY_ID['c-challenge'] || null);
+        setEvent(EVENTS_BY_ID[eventId] || EVENTS_BY_ID['c-challenge'] || null);
       } finally {
         setIsLoading(false);
       }
@@ -195,11 +195,21 @@ const EventDetails = () => {
 
               {/* Action Buttons Integrated into card bottom */}
               <div className="flex flex-col sm:flex-row gap-3 mt-auto pt-4">
-                <Link to={`/register/${eventId}`} className="flex-1 bg-white hover:bg-gray-200 text-[#070707] transition-all rounded-full px-6 py-3.5 font-bold text-sm tracking-wide shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:-translate-y-0.5 flex items-center justify-center gap-2 group">
-                  Register Now
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <button className="flex-1 bg-transparent hover:bg-white/5 border border-white/20 text-white transition-all rounded-full px-6 py-3.5 font-bold text-sm tracking-wide flex items-center justify-center">
+                {event.registrationClosed ? (
+                  <div className="flex-1 bg-white/10 text-white/50 cursor-not-allowed transition-all rounded-full px-6 py-3.5 font-bold text-sm tracking-wide text-center flex items-center justify-center">
+                    Registration Closed
+                  </div>
+                ) : (
+                  <Link to={`/register/${eventId}`} className="flex-1 bg-white hover:bg-gray-200 text-[#070707] transition-all rounded-full px-6 py-3.5 font-bold text-sm tracking-wide shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:-translate-y-0.5 flex items-center justify-center gap-2 group">
+                    Register Now
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                )}
+                <button 
+                  type="button"
+                  onClick={() => setShowGuidelines(true)}
+                  className="flex-1 bg-transparent hover:bg-white/10 border border-white/20 hover:border-white/40 text-white transition-all rounded-full px-6 py-3.5 font-bold text-sm tracking-wide flex items-center justify-center cursor-pointer"
+                >
                   Guidelines
                 </button>
               </div>
@@ -208,6 +218,13 @@ const EventDetails = () => {
           </motion.div>
         </div>
       </div>
+
+      {/* Guidelines Modal */}
+      <GuidelinesModal
+        isOpen={showGuidelines}
+        onClose={() => setShowGuidelines(false)}
+        event={event}
+      />
     </div>
   );
 };
