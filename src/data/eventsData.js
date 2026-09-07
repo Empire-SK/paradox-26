@@ -565,7 +565,44 @@ export const EVENTS = [
   }
 ];
 
+export const HACKATHON_EVENT = {
+  id: 'hackathon',
+  number: 0,
+  title: 'PARADOX HACKATHON 2026',
+  subtitle: '8-Hour Flagship Hackathon',
+  category: 'coding',
+  categoryLabel: 'Flagship Hackathon',
+  type: 'Hackathon',
+  status: 'Register Now',
+  description: 'An intense 8-hour non-stop hackathon challenging creators, developers, and designers to build transformative prototypes tackling real-world problems.',
+  guidelines: [
+    'Team size: 2 to 4 members from any recognized institution.',
+    'All code, assets, and design work must be crafted during the 8-hour hackathon duration.',
+    'Participants must bring their own laptops, chargers, and development kits.',
+    'Teams are required to maintain a public GitHub repository with regular commits.',
+    'Use of public open-source libraries and APIs is allowed with proper credit.',
+    'Evaluation is based on Innovation, Technical Depth, UI/UX Design, Feasibility, and the Final Pitch.'
+  ],
+  date: 'October 10-11, 2025',
+  time: '09:00 AM - 05:30 PM',
+  venue: 'College of Engineering Kidangoor',
+  prizePool: '10000',
+  posterUrl: 'https://paradox25.netlify.app/_next/image?url=%2Fposters%2Fcchallenge.png&w=1920&q=75',
+  contacts: [
+    { name: 'HACKATHON LEAD', phone: '+91 6238 128 951' },
+    { name: 'COORDINATOR', phone: '+91 81389 77809' }
+  ],
+  customFields: [
+    { id: 'teamName', label: 'Team Name', type: 'text', required: true },
+    { id: 'teamSize', label: 'Team Size (2-4)', type: 'select', options: '2 Members, 3 Members, 4 Members', required: true },
+    { id: 'memberDetails', label: 'Team Members (Names, Emails & Phone Numbers)', type: 'text', required: true },
+    { id: 'trackPreference', label: 'Selected Track', type: 'select', options: 'Web & Mobile Apps, AI & Machine Learning, Smart Campus & IoT, Open Innovation', required: true },
+    { id: 'githubProfile', label: 'Team Lead GitHub / Portfolio URL', type: 'text', required: false }
+  ]
+};
+
 export const EVENTS_BY_ID = EVENTS.reduce((acc, event) => {
   acc[event.id] = event;
   return acc;
-}, {});
+}, { hackathon: HACKATHON_EVENT });
+

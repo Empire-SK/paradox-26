@@ -1,22 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import HackathonNavbar from './components/HackathonNavbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import EventDetails from './pages/EventDetails';
 import AdminPage from './pages/AdminPage';
 import RegistrationPage from './pages/RegistrationPage';
+import HackathonPage from './pages/HackathonPage';
 import './index.css';
 import pdoxLogo from './assets/pdox.png';
 const ScrollToTop = () => {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+    if (hash) {
+      const elementId = hash.replace('#', '');
+      const timer = setTimeout(() => {
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [pathname, hash]);
   return null;
 };
 
 function App() {
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(() => {
     // Check if we've already shown the loader in this session
     return !sessionStorage.getItem('paradoxLoaded');
@@ -67,7 +81,7 @@ function App() {
       )}
 
       <ScrollToTop />
-      <Navbar />
+      {location.pathname === '/hackathon' ? <HackathonNavbar /> : <Navbar />}
 
       {/* Professional Aesthetic Background */}
       <div className="fixed inset-0 w-full h-full pointer-events-none z-[-2] overflow-hidden bg-[var(--color-bg-dark)]">
@@ -90,6 +104,7 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/hackathon" element={<HackathonPage />} />
         <Route path="/events/:eventId" element={<EventDetails />} />
         <Route path="/register/:eventId" element={<RegistrationPage />} />
         <Route path="/admin" element={<AdminPage />} />

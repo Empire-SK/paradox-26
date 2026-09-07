@@ -25,9 +25,9 @@ const HeroSection = () => {
           className="flex flex-col items-start text-left w-full max-w-4xl"
         >
           {/* Glass Badge: Department */}
-          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full glass-badge mb-4 sm:mb-5">
-            <span className="w-2 h-2 rounded-full bg-[var(--color-primary)] shadow-[0_0_10px_var(--color-primary)] animate-pulse"></span>
-            <span className="text-gray-300 font-sans text-xs font-semibold tracking-widest uppercase">
+          <div className="inline-flex items-center gap-2 sm:gap-2.5 px-2 py-2 sm:px-4 sm:py-2 rounded-full glass-badge mb-4 sm:mb-5">
+            <span className="w-2 h-2 rounded-full bg-[var(--color-primary)] shadow-[0_0_10px_var(--color-primary)] animate-pulse shrink-0"></span>
+            <span className="text-gray-300 font-sans text-xs font-semibold tracking-widest uppercase leading-snug max-w-[240px] sm:max-w-none">
               Department of Computer Science & Engineering
             </span>
           </div>
@@ -55,14 +55,30 @@ const HeroSection = () => {
             Welcome to the annual flagship technical festival presented by the Department of Computer Science and Engineering. Step into the digital grid.
           </p>
 
-          {/* Action Buttons underneath text */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto mt-6 sm:mt-8">
+          {/* Desktop Action Buttons (Unchanged original layout) */}
+          <div className="hidden sm:flex flex-row items-center gap-4 w-auto mt-6 sm:mt-8">
             <a href="#events" className="bg-white hover:bg-gray-200 text-[#070707] transition-all rounded-full px-8 py-3.5 font-bold text-sm tracking-wide shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:-translate-y-0.5 text-center flex justify-center items-center">
               Explore Events
             </a>
             <a href="#about" className="group flex justify-center items-center gap-3 px-8 py-3.5 rounded-full border border-white/20 hover:border-[var(--color-primary)] bg-white/5 hover:bg-[var(--color-primary)]/10 text-white transition-all text-sm font-medium tracking-wide hover:-translate-y-0.5">
               Learn More
               <span className="group-hover:translate-x-1 transition-transform">→</span>
+            </a>
+          </div>
+
+          {/* Mobile Action Buttons (Phone View) */}
+          <div className="flex sm:hidden flex-row items-center gap-3 w-full mt-6">
+            <a 
+              href="#events" 
+              className="flex-1 bg-white hover:bg-gray-200 text-[#070707] font-sans font-semibold text-sm py-3.5 px-4 rounded-xl transition-all shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:scale-[1.02] flex items-center justify-center text-center"
+            >
+              Explore Events
+            </a>
+            <a 
+              href="#about" 
+              className="flex-1 border border-white/20 hover:border-[var(--color-primary)] bg-white/5 hover:bg-[var(--color-primary)]/10 text-white font-sans font-semibold text-sm py-3.5 px-4 rounded-xl transition-all hover:scale-[1.02] flex items-center justify-center text-center"
+            >
+              Learn More
             </a>
           </div>
         </motion.div>
