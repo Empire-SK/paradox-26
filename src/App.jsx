@@ -53,7 +53,7 @@ function App() {
   }, [isLoading]);
 
   return (
-    <div className="relative min-h-screen bg-[var(--color-bg-dark)] font-sans text-gray-100">
+    <div className="relative min-h-screen w-full bg-[var(--color-bg-dark)] font-sans text-gray-100 overflow-x-hidden">
       {/* Loading Screen Overlay - Professional & Minimal */}
       {isLoading && (
         <div 

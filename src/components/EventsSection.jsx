@@ -107,7 +107,7 @@ const EventsSection = () => {
   return (
     <section 
       id="events" 
-      className="min-h-screen w-full py-24 relative z-10 bg-transparent"
+      className="min-h-screen w-full py-24 relative z-10 bg-transparent overflow-hidden"
     >
       <div className="w-full max-w-7xl mx-auto px-6 relative z-10">
         

@@ -4,7 +4,7 @@ import aboutPoster from '../assets/about-poster.jpg';
 
 const AboutSection = () => {
   return (
-    <section id="about" className="py-24 relative w-full scroll-mt-20 bg-[var(--color-bg-dark)]">
+    <section id="about" className="py-24 relative w-full scroll-mt-20 overflow-hidden bg-[var(--color-bg-dark)]">
       <div className="w-full max-w-[1400px] mx-auto px-6 lg:px-12 relative z-10">
         
         {/* Top Header Row (matches "Meet The Minds...") */}
