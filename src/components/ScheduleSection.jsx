@@ -12,6 +12,7 @@ const fallbackSchedule = [
 const ScheduleSection = () => {
   const containerRef = useRef(null);
   const [scheduleData, setScheduleData] = useState([]);
+  const [activeDay, setActiveDay] = useState('Day 1');
   
   useEffect(() => {
     const fetchSchedule = async () => {
@@ -38,16 +39,41 @@ const ScheduleSection = () => {
 
   const smoothProgress = useSpring(scrollYProgress, { stiffness: 50, damping: 20 });
 
+  const currentScheduleItems = scheduleData.filter(item => (item.day || 'Day 1') === activeDay);
+
   return (
     <section id="schedule" className="w-full py-24 relative z-10 overflow-hidden bg-transparent">
       <div className="w-full max-w-6xl mx-auto px-4 relative">
-        <div className="text-center mb-24">
+        <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-sans font-bold mb-6 tracking-tight text-white">
             Schedule Overview
           </h2>
-          <p className="text-gray-400 font-sans text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
+          <p className="text-gray-400 font-sans text-sm md:text-base max-w-2xl mx-auto leading-relaxed mb-8">
             Plan your day. Stay ahead of the curve.
           </p>
+
+          <div className="flex items-center justify-center gap-4">
+            <button
+              onClick={() => setActiveDay('Day 1')}
+              className={`px-8 py-3 rounded-full font-bold text-sm transition-all ${
+                activeDay === 'Day 1'
+                  ? 'bg-[var(--color-primary)] text-white shadow-[0_0_20px_rgba(255,51,0,0.3)]'
+                  : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              Day 1
+            </button>
+            <button
+              onClick={() => setActiveDay('Day 2')}
+              className={`px-8 py-3 rounded-full font-bold text-sm transition-all ${
+                activeDay === 'Day 2'
+                  ? 'bg-[var(--color-primary)] text-white shadow-[0_0_20px_rgba(255,51,0,0.3)]'
+                  : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              Day 2
+            </button>
+          </div>
         </div>
 
         <div className="relative" ref={containerRef}>
@@ -60,7 +86,7 @@ const ScheduleSection = () => {
           </div>
 
           <div className="relative w-full flex flex-col gap-12 z-10">
-            {scheduleData.map((item, index) => {
+            {currentScheduleItems.map((item, index) => {
               const isRight = index % 2 !== 0;
 
               return (

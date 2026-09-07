@@ -155,7 +155,7 @@ const AdminPage = () => {
   
   // --- Schedule Logic ---
   const handleAddScheduleItem = () => {
-    setScheduleItems(prev => [...prev, { id: `sch_${Date.now()}`, time: '', title: '', location: '', desc: '' }]);
+    setScheduleItems(prev => [...prev, { id: `sch_${Date.now()}`, day: 'Day 1', time: '', title: '', location: '', desc: '' }]);
   };
 
   const handleUpdateScheduleItem = (index, field, value) => {
@@ -1136,7 +1136,18 @@ const AdminPage = () => {
                     <Trash2 className="w-4 h-4" />
                   </button>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Day *</label>
+                      <select 
+                        value={item.day || 'Day 1'} 
+                        onChange={(e) => handleUpdateScheduleItem(index, 'day', e.target.value)}
+                        className="bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+                      >
+                        <option value="Day 1">Day 1</option>
+                        <option value="Day 2">Day 2</option>
+                      </select>
+                    </div>
                     <div className="flex flex-col gap-1.5">
                       <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Time *</label>
                       <input 
