@@ -19,39 +19,43 @@ import {
   Layers,
   Laptop,
   Mail,
-  ExternalLink
+  ExternalLink,
+  Activity,
+  BookOpen,
+  Globe,
+  Factory
 } from 'lucide-react';
 import { HACKATHON_EVENT } from '../data/eventsData';
 import Countdown from '../components/Countdown';
 
 const TRACKS = [
   {
-    id: 'web-mobile',
-    icon: Laptop,
-    title: 'Web & Mobile Systems',
-    subtitle: 'Full-Stack & Cloud Solutions',
-    description: 'Build responsive, scalable web applications, progressive web platforms, or mobile apps that solve real community or developer pain points.'
+    id: 'health-wellbeing',
+    icon: Activity,
+    title: 'Good Health & Well-being',
+    
+    description: 'Ideas improving healthcare access and wellness — telemedicine, mental health tools, diagnostics, or health awareness platforms.'
   },
   {
-    id: 'ai-agents',
-    icon: Cpu,
-    title: 'AI & Intelligent Agents',
-    subtitle: 'Autonomous Systems & LLMs',
-    description: 'Harness modern AI models, agentic workflows, computer vision, or natural language interfaces to automate tasks and unlock new capabilities.'
+    id: 'quality-education',
+    icon: BookOpen,
+    title: 'Quality Education',
+    
+    description: 'Tech solutions that make learning more accessible, effective, or inclusive — ed-tech platforms, skill-building tools, or accessibility-focused learning apps.'
   },
   {
-    id: 'smart-iot',
-    icon: Layers,
-    title: 'Smart Campus & IoT',
-    subtitle: 'Hardware, Automation & Sensors',
-    description: 'Design smart energy monitors, connected embedded systems, or campus automation utilities to optimize everyday campus operations.'
+    id: 'climate-action',
+    icon: Globe,
+    title: 'Climate Action',
+ 
+    description: 'Projects tackling climate impact — carbon tracking, climate-resilient agriculture, disaster early-warning, or environmental awareness tools.'
   },
   {
-    id: 'open-innovation',
-    icon: Sparkles,
-    title: 'Open Innovation',
-    subtitle: 'Social Good, FinTech & Beyond',
-    description: 'Have a breakthrough idea in FinTech, Healthcare, Sustainability, or EdTech? Bring your most radical, boundary-pushing solution to life.'
+    id: 'industry-innovation',
+    icon: Factory,
+    title: 'Industry, Innovation & Infrastructure',
+    
+    description: 'Solutions around smart infrastructure, industrial efficiency, or innovative tech applications — broad enough to include IoT, automation, or digital infrastructure ideas.'
   }
 ];
 
@@ -400,10 +404,10 @@ const HackathonPage = () => {
                     <h4 className="text-base font-semibold text-white mb-1">Phone</h4>
                     <div className="text-sm text-gray-400 leading-relaxed flex flex-col font-mono">
                       <a href="tel:+916238128951" className="hover:text-[var(--color-primary)] transition-colors">
-                        +91 6238 128 951
+                        +91 9567528609
                       </a>
                       <a href="tel:+918138977809" className="hover:text-[var(--color-primary)] transition-colors">
-                        +91 81389 77809
+                        +91 8304959545
                       </a>
                     </div>
                   </div>
