@@ -79,7 +79,9 @@ const RULES = [
   'Participants must bring their own laptops, chargers, and any specialized development equipment.',
   'Open-source libraries, frameworks, and public APIs are permitted with appropriate attribution.',
   'Every team must maintain an active public GitHub repository with periodic commits during the sprint.',
-  'Judging criteria: Innovation (25%), Technical Depth (25%), UI/UX Execution (20%), Feasibility (15%), and Pitch (15%).'
+  'Judging criteria: Innovation (25%), Technical Depth (25%), UI/UX Execution (20%), Feasibility (15%), and Pitch (15%).',
+  'Hardware-based projects are not permitted. Projects must be software-only.'
+
 ];
 
 const HackathonPage = () => {
@@ -178,12 +180,15 @@ const HackathonPage = () => {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="flex flex-row items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto px-4 sm:px-0"
           >
-            <Link 
-              to="/register/hackathon" 
+            {/* TODO: Replace '#' with the actual external registration URL */}
+            <a 
+              href="#" 
+              target="_blank" 
+              rel="noopener noreferrer"
               className="flex-1 sm:flex-initial sm:w-auto bg-[var(--color-primary)] hover:bg-[var(--color-secondary)] text-white font-sans font-semibold text-sm sm:text-base py-2.5 sm:py-3.5 px-4 sm:px-8 rounded-xl transition-all shadow-[0_0_20px_rgba(255,51,0,0.3)] hover:scale-[1.02] flex items-center justify-center text-center"
             >
               Register Now
-            </Link>
+            </a>
 
             <a 
               href="#details" 
@@ -537,13 +542,16 @@ const HackathonPage = () => {
             <p className="text-white/90 text-sm sm:text-base mb-8 leading-relaxed">
               Slots are limited per lab capacity. Assemble your team and secure your spot for Paradox Hackathon 2026.
             </p>
-            <Link 
-              to="/register/hackathon" 
+            {/* TODO: Replace '#' with the actual external registration URL */}
+            <a 
+              href="#" 
+              target="_blank" 
+              rel="noopener noreferrer"
               className="bg-black hover:bg-black/80 text-white font-bold text-sm px-10 py-4 rounded-full transition-all shadow-xl hover:scale-105 flex items-center gap-2 group"
             >
               <span>Register Team Now</span>
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </Link>
+            </a>
           </div>
         </motion.div>
 
