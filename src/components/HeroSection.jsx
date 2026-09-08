@@ -8,7 +8,7 @@ const HeroSection = () => {
     >
       {/* Background Image Layer */}
       <div 
-        className="absolute inset-0 z-0 opacity-80 mix-blend-lighten"
+        className="absolute inset-0 z-0 opacity-80 "
         style={{ backgroundImage: `url(${bgImage})`, backgroundSize: 'cover', backgroundPosition: 'center top' }}
       ></div>
       

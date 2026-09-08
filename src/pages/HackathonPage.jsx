@@ -23,7 +23,10 @@ import {
   Activity,
   BookOpen,
   Globe,
-  Factory
+  Factory,
+  Info,
+  AlertCircle,
+  CreditCard
 } from 'lucide-react';
 import { HACKATHON_EVENT } from '../data/eventsData';
 import Countdown from '../components/Countdown';
@@ -60,12 +63,14 @@ const TRACKS = [
 ];
 
 const TIMELINE = [
-  { time: '09:00 AM', title: 'Check-in & Lab Setup', desc: 'Reporting, team desk allotment, Wi-Fi configuration, and environment setup.' },
-  { time: '09:30 AM', title: 'Hacking Begins', desc: 'Problem briefs revealed, countdown starts, and full-speed development commences.' },
-  { time: '01:30 PM', title: 'Mentorship & Lunch', desc: 'Technical mentors review progress, provide architectural feedback, followed by lunch.' },
-  { time: '04:30 PM', title: 'Code Freeze', desc: 'Final GitHub commits pushed and pitch decks submitted to the review portal.' },
-  { time: '05:00 PM', title: 'Live Demos & Jury Pitch', desc: '3-minute product demonstration followed by 2 minutes of Q&A with industry judges.' },
-  { time: '05:30 PM', title: 'Results & Felicitation', desc: 'Announcement of winners, distribution of cash prizes, trophies, and certificates.' }
+  { time: '08:30 AM - 09:00 AM', title: 'Registration', desc: 'Reporting, team desk allotment, Wi-Fi configuration, and environment setup.' },
+  { time: '09:00 AM - 09:15 AM', title: 'Kickoff', desc: 'Rules explanation, team check, and problem statement reminder.' },
+  { time: '09:15 AM - 12:30 PM', title: 'Build Block 1 (~3h 15m)', desc: 'First development sprint commences.' },
+  { time: '12:30 PM - 01:15 PM', title: 'Lunch Break', desc: 'Lunch and informal networking.' },
+  { time: '01:15 PM - 02:45 PM', title: 'Build Block 2 & Judge Review', desc: 'Development continues along with preliminary judge review.' },
+  { time: '02:45 PM - 03:05 PM', title: 'Evening Snacks & Tea', desc: 'Tea and refreshments break.' },
+  { time: '03:05 PM - 03:40 PM', title: 'Final Touches & Score Finalization', desc: 'Final project polish while judges finalize scores.' },
+  { time: '03:40 PM - 04:00 PM', title: 'Results & Closing', desc: 'Announcement of winners and closing ceremony.' }
 ];
 
 const RULES = [
@@ -82,8 +87,8 @@ const HackathonPage = () => {
     <div className="w-full min-h-screen bg-[var(--color-bg-dark)] pt-20 sm:pt-24 md:pt-24 pb-20 md:pb-24 relative overflow-hidden font-sans">
       
       {/* Background Ambient Glows */}
-      <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-[radial-gradient(circle,rgba(255,51,0,0.1)_0%,transparent_70%)] pointer-events-none rounded-full blur-[90px] z-0 mix-blend-screen" />
-      <div className="absolute top-[40%] right-[-10%] w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(255,107,0,0.06)_0%,transparent_70%)] pointer-events-none rounded-full blur-[80px] z-0 mix-blend-screen" />
+      <div className="hidden md:block absolute top-10 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-[radial-gradient(circle,rgba(255,51,0,0.1)_0%,transparent_70%)] pointer-events-none rounded-full blur-[30px] z-0 opacity-80" />
+      <div className="hidden md:block absolute top-[40%] right-[-10%] w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(255,107,0,0.06)_0%,transparent_70%)] pointer-events-none rounded-full blur-[30px] z-0 opacity-80" />
 
       <div className="max-w-6xl mx-auto px-5 sm:px-8 relative z-10">
         
@@ -120,7 +125,7 @@ const HackathonPage = () => {
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/10 text-[var(--color-primary)] text-xs font-bold tracking-widest uppercase mb-5 sm:mb-6 md:mb-5"
           >
             <Flame className="w-4 h-4 text-[var(--color-primary)]" />
-            <span>8-Hour Non-Stop Hackathon</span>
+            <span>6-Hour Non-Stop Hackathon</span>
           </motion.div>
 
           <motion.h1 
@@ -181,7 +186,7 @@ const HackathonPage = () => {
             </Link>
 
             <a 
-              href="#tracks" 
+              href="#details" 
               className="flex-1 sm:flex-initial sm:w-auto border border-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 text-[var(--color-primary)] hover:text-white font-sans font-semibold text-sm sm:text-base py-2.5 sm:py-3.5 px-4 sm:px-8 rounded-xl transition-all hover:scale-[1.02] flex items-center justify-center text-center"
             >
               Learn More
@@ -212,11 +217,11 @@ const HackathonPage = () => {
               return (
                 <motion.div 
                   key={track.id}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 15 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: idx * 0.1 }}
-                  className="flux-card p-8 group flex flex-col justify-between"
+                  viewport={{ once: true, margin: "100px" }}
+                  transition={{ duration: 0.3, delay: idx * 0.05 }}
+                  className="flux-card p-8 group flex flex-col justify-between will-change-[transform,opacity]"
                 >
                   <div>
                     <div className="w-12 h-12 rounded-2xl bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 flex items-center justify-center text-[var(--color-primary)] mb-5 group-hover:scale-110 group-hover:bg-[var(--color-primary)] group-hover:text-white transition-all">
@@ -238,6 +243,83 @@ const HackathonPage = () => {
           </div>
         </div>
 
+        {/* Details Section */}
+        <div id="details" className="scroll-mt-28 mb-20">
+          <div className="flex flex-col items-center text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass-badge mb-3">
+              <Info className="w-3.5 h-3.5 text-[var(--color-primary)]" />
+              <span className="text-[11px] font-bold text-gray-300 uppercase tracking-widest">Important Info</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+              Registration <span className="text-[var(--color-primary)]">Details</span>
+            </h2>
+            <p className="text-gray-400 text-sm max-w-xl mt-2">
+              Essential registration deadlines, pricing, and fee policies for all participating teams.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            
+            {/* Card 1: Deadline */}
+            <div className="flux-card p-6 sm:p-8 flex flex-col justify-between group">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 flex items-center justify-center text-[var(--color-primary)] mb-5 group-hover:scale-110 group-hover:bg-[var(--color-primary)] group-hover:text-white transition-all">
+                  <Calendar className="w-6 h-6" />
+                </div>
+                <div className="text-xs font-semibold uppercase tracking-widest text-[var(--color-primary)] mb-1">
+                  Closing Date
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2 tracking-wide">
+                  September 14, 2026
+                </h3>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  Registration closes strictly on <strong className="text-white">September 14</strong>. Ensure your team registers and confirms their slot before entries close.
+                </p>
+              </div>
+            </div>
+
+            {/* Card 2: Fee */}
+            <div className="flux-card p-6 sm:p-8 flex flex-col justify-between border-[var(--color-primary)]/40 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 px-3.5 py-1 bg-[var(--color-primary)] text-white text-[10px] font-bold uppercase tracking-widest rounded-bl-xl shadow-md">
+                Per Member
+              </div>
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 flex items-center justify-center text-[var(--color-primary)] mb-5 group-hover:scale-110 group-hover:bg-[var(--color-primary)] group-hover:text-white transition-all">
+                  <CreditCard className="w-6 h-6" />
+                </div>
+                <div className="text-xs font-semibold uppercase tracking-widest text-[var(--color-primary)] mb-1">
+                  Registration Fee
+                </div>
+                <h3 className="text-3xl font-extrabold text-white mb-2 tracking-wide">
+                  ₹29 <span className="text-base font-normal text-gray-400">/ member</span>
+                </h3>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  The entry fee is <strong className="text-white">₹29 per member</strong> (applicable for all teams of 2 to 4 participants).
+                </p>
+              </div>
+            </div>
+
+            {/* Card 3: Refund Policy */}
+            <div className="flux-card p-6 sm:p-8 flex flex-col justify-between group">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-5 group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-black transition-all">
+                  <AlertCircle className="w-6 h-6" />
+                </div>
+                <div className="text-xs font-semibold uppercase tracking-widest text-amber-400 mb-1">
+                  Refund Policy
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2 tracking-wide">
+                  Non-Refundable
+                </h3>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  The registration fee is <strong className="text-gray-200">strictly non-refundable</strong> once paid under any circumstances.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
         {/* Timeline & Schedule */}
         <div id="schedule" className="scroll-mt-28 mb-20">
           <div className="flex flex-col items-center text-center mb-12">
@@ -249,7 +331,7 @@ const HackathonPage = () => {
               Event <span className="text-[var(--color-primary)]">Schedule</span>
             </h2>
             <p className="text-gray-400 text-sm max-w-xl mt-2">
-              Date: September 17, 2026 • Registration: 9:00 AM
+              Date: September 17, 2026 • Registration: 8:30 AM
             </p>
           </div>
 
@@ -284,33 +366,18 @@ const HackathonPage = () => {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             <div className="flux-card p-8 border-[var(--color-primary)]/40 relative overflow-hidden flex flex-col justify-between">
               <div className="absolute top-0 right-0 px-4 py-1.5 bg-[var(--color-primary)] text-white text-[10px] font-bold uppercase tracking-widest rounded-bl-xl shadow-lg">
-                Winner
+                Prize Pool
               </div>
               <div>
-                <div className="text-3xl font-extrabold text-white mb-2">₹6,000</div>
-                <h3 className="text-lg font-bold text-[var(--color-primary)] mb-3">First Place Champion</h3>
+                <div className="text-3xl font-extrabold text-white mb-2">₹10,000</div>
+                <h3 className="text-lg font-bold text-[var(--color-primary)] mb-3">Total Prize Pool</h3>
                 <ul className="space-y-2 text-sm text-gray-300">
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" /> Winner Trophy & Memento</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" /> Trophies & Mementos</li>
                   <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" /> Certificate of Excellence</li>
                   <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" /> Exclusive Fest Swag Box</li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="flux-card p-8 relative overflow-hidden flex flex-col justify-between">
-              <div className="absolute top-0 right-0 px-4 py-1.5 bg-white/10 text-gray-300 text-[10px] font-bold uppercase tracking-widest rounded-bl-xl">
-                Runner-Up
-              </div>
-              <div>
-                <div className="text-3xl font-extrabold text-white mb-2">₹4,000</div>
-                <h3 className="text-lg font-bold text-gray-200 mb-3">Second Place</h3>
-                <ul className="space-y-2 text-sm text-gray-300">
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" /> Runner-Up Trophy</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" /> Certificate of Merit</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" /> Paradox Merch Pack</li>
                 </ul>
               </div>
             </div>
@@ -370,9 +437,8 @@ const HackathonPage = () => {
                   <div>
                     <h4 className="text-base font-semibold text-white mb-1">Location</h4>
                     <p className="text-sm text-gray-400 leading-relaxed">
-                      College of Engineering Kidangoor<br />
-                      Kottayam, Kerala<br />
-                      India
+                      ASAP Hall<br />
+                     College of Engineering Kidangoor<br />
                     </p>
                   </div>
                 </div>
@@ -403,11 +469,11 @@ const HackathonPage = () => {
                   <div>
                     <h4 className="text-base font-semibold text-white mb-1">Phone</h4>
                     <div className="text-sm text-gray-400 leading-relaxed flex flex-col font-mono">
-                      <a href="tel:+916238128951" className="hover:text-[var(--color-primary)] transition-colors">
-                        +91 9567528609
+                      <a href="tel:+919567528609" className="hover:text-[var(--color-primary)] transition-colors">
+                        S Sreenandan: +91 9567528609
                       </a>
-                      <a href="tel:+918138977809" className="hover:text-[var(--color-primary)] transition-colors">
-                        +91 8304959545
+                      <a href="tel:+918304959545" className="hover:text-[var(--color-primary)] transition-colors">
+                        Anna Rose Dolfy: +91 8304959545
                       </a>
                     </div>
                   </div>
@@ -421,8 +487,8 @@ const HackathonPage = () => {
                   <div>
                     <h4 className="text-base font-semibold text-white mb-1">Event Dates</h4>
                     <p className="text-sm text-gray-400 leading-relaxed">
-                      September, 2026<br />
-                      Registration: 9:00 AM
+                      September 17, 2026<br />
+                      Registration: 8:30 AM
                     </p>
                   </div>
                 </div>
@@ -437,7 +503,7 @@ const HackathonPage = () => {
                 href="https://maps.google.com/?q=College+of+Engineering+Kidangoor" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="absolute top-4 left-4 z-10 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-black/80 hover:bg-black text-gray-200 hover:text-white text-xs font-medium backdrop-blur-md border border-white/15 shadow-md transition-all group"
+                className="absolute top-4 left-4 z-10 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-black/90 hover:bg-black text-gray-200 hover:text-white text-xs font-medium border border-white/15 shadow-md transition-all group"
               >
                 <span>Open in Maps</span>
                 <ExternalLink className="w-3.5 h-3.5 text-gray-400 group-hover:text-white" />
@@ -446,7 +512,7 @@ const HackathonPage = () => {
               <iframe
                 title="College of Engineering Kidangoor Map"
                 src="https://maps.google.com/maps?q=College+of+Engineering+Kidangoor,+Kidangoor+South+P.O,+Kottayam,+Kerala+686583&t=&z=15&ie=UTF8&iwloc=&output=embed"
-                className="w-full h-full border-0"
+                className="w-full h-full border-0 pointer-events-none md:pointer-events-auto"
                 allowFullScreen=""
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
@@ -458,12 +524,12 @@ const HackathonPage = () => {
 
         {/* Final Registration Banner CTA */}
         <motion.div 
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="rounded-3xl bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] p-8 sm:p-12 text-center relative overflow-hidden shadow-[0_20px_50px_rgba(255,51,0,0.3)]"
+          viewport={{ once: true, margin: "80px" }}
+          className="rounded-3xl bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] p-8 sm:p-12 text-center relative overflow-hidden shadow-lg md:shadow-[0_20px_50px_rgba(255,51,0,0.3)] will-change-[transform,opacity]"
         >
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="hidden md:block absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-xl pointer-events-none" />
           <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center">
             <h3 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
               Ready to Build the Future?

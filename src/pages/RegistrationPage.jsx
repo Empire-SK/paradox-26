@@ -203,7 +203,7 @@ const RegistrationPage = () => {
 
   return (
     <div className="w-full min-h-screen bg-[var(--color-bg-dark)] pt-32 pb-24 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[radial-gradient(circle,rgba(255,51,0,0.05)_0%,transparent_70%)] pointer-events-none rounded-full blur-[80px] z-0 mix-blend-screen"></div>
+      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[radial-gradient(circle,rgba(255,51,0,0.05)_0%,transparent_70%)] pointer-events-none rounded-full blur-[30px] z-0 "></div>
 
       <div className="max-w-3xl mx-auto px-6 relative z-10">
         <Link to={`/events/${eventId}`} className="flex items-center gap-2 text-gray-500 hover:text-[var(--color-primary)] text-[10px] font-bold uppercase tracking-widest transition-colors mb-8 group">

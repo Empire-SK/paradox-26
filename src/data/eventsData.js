@@ -29,8 +29,8 @@ export const EVENTS = [
     prizePool: '2000',
     posterUrl: 'https://paradox25.netlify.app/_next/image?url=%2Fposters%2Fcchallenge.png&w=1920&q=75',
     contacts: [
-      { name: 'BHAVYA', phone: '7510695281' },
-      { name: 'BOOMIKA', phone: '7034958002' }
+      { name: 'Gokila', phone: '6282681915' },
+      { name: 'Hari', phone: '8078759239' }
     ]
   },
   {
@@ -55,8 +55,8 @@ export const EVENTS = [
     prizePool: '2500',
     posterUrl: 'https://paradox25.netlify.app/_next/image?url=%2Fposters%2Fcchallenge.png&w=1920&q=75',
     contacts: [
-      { name: 'BHAVYA', phone: '7510695281' },
-      { name: 'COORDINATOR', phone: '9876543210' }
+      { name: 'Shine P Ninan', phone: '9633421639' },
+      { name: 'Aswin Gigi', phone: '7034757701' }
     ]
   },
   {
@@ -105,8 +105,8 @@ export const EVENTS = [
     prizePool: '3000',
     posterUrl: 'https://paradox25.netlify.app/_next/image?url=%2Fposters%2Fcchallenge.png&w=1920&q=75',
     contacts: [
-      { name: 'BHAVYA', phone: '7510695281' },
-      { name: 'COORDINATOR', phone: '9876543210' }
+      { name: 'Gautham', phone: '9656534816' },
+      { name: 'Devu', phone: '6238193288' }
     ]
   },
   {
@@ -130,8 +130,8 @@ export const EVENTS = [
     prizePool: '2500',
     posterUrl: 'https://paradox25.netlify.app/_next/image?url=%2Fposters%2Fcchallenge.png&w=1920&q=75',
     contacts: [
-      { name: 'BHAVYA', phone: '7510695281' },
-      { name: 'COORDINATOR', phone: '9876543210' }
+      { name: 'Ashik', phone: '8547330803' },
+      { name: 'Sanju', phone: '8281724561' }
     ]
   },
   {
@@ -155,8 +155,8 @@ export const EVENTS = [
     prizePool: '2000',
     posterUrl: 'https://paradox25.netlify.app/_next/image?url=%2Fposters%2Fcchallenge.png&w=1920&q=75',
     contacts: [
-      { name: 'BOOMIKA', phone: '7034958002' },
-      { name: 'COORDINATOR', phone: '9876543210' }
+      { name: 'Devika', phone: '9447207921' },
+      { name: 'Swathy', phone: '9074030625' }
     ]
   },
 
@@ -182,8 +182,8 @@ export const EVENTS = [
     prizePool: '3000',
     posterUrl: 'https://paradox25.netlify.app/posters/debate.jpg',
     contacts: [
-      { name: 'BHAVYA', phone: '7510695281' },
-      { name: 'COORDINATOR', phone: '9876543210' }
+      { name: 'Aswin Ajayan', phone: '9037662883' },
+      { name: 'Albin Josy', phone: '9778115077' }
     ]
   },
   {
@@ -207,8 +207,7 @@ export const EVENTS = [
     prizePool: '2500',
     posterUrl: 'https://paradox25.netlify.app/posters/debate.jpg',
     contacts: [
-      { name: 'BOOMIKA', phone: '7034958002' },
-      { name: 'COORDINATOR', phone: '9876543210' }
+      { name: 'Dhanwanth Manoj', phone: '7306734566' }
     ]
   },
   {
@@ -232,8 +231,8 @@ export const EVENTS = [
     prizePool: '5000',
     posterUrl: 'https://paradox25.netlify.app/posters/debate.jpg',
     contacts: [
-      { name: 'BHAVYA', phone: '7510695281' },
-      { name: 'BOOMIKA', phone: '7034958002' }
+      { name: 'Alen Jose', phone: '6238877641' },
+      { name: 'Sachu Sajeev', phone: '8590205927' }
     ]
   },
 
@@ -247,20 +246,26 @@ export const EVENTS = [
     type: 'Typing',
     status: 'Register Now',
     description: 'Test your words-per-minute speed and accuracy in high-pressure rapid keyboard typing duels.',
-    guidelines: [
-      'Individual speed testing on official typing test software.',
-      'Multiple rounds: 60-second burst test and 3-minute sustained paragraph typing.',
-      'Scoring: Adjusted WPM = Raw WPM × Accuracy percentage.',
-      'Mechanical keyboards allowed if brought by the participant.'
-    ],
+   guidelines: [
+  'Participants must be present at the venue 10 minutes before the event starts.',
+  'Only individual participation is allowed.',
+  'All participants must bring their college ID card.',
+  'Each participant will be assigned a computer/laptop with the necessary tools for the competition.',
+  'Use of external tools such as autocorrect, spell-checkers, grammar checkers, or similar assistance is strictly prohibited.',
+  'Any participant found engaging in malpractice will be disqualified immediately.',
+  'The competition will consist of 3 rounds: Warm-up, Medium, and Advanced.',
+  'Scores will be based on typing speed (WPM) and accuracy.',
+  'Results will be announced after the evaluation process.',
+  'Organizers reserve the right to modify or update the rules when necessary.'
+],
     date: '7/10/2025',
     time: '09:45 AM - 11:30 AM',
     venue: 'IP Lab',
     prizePool: '1500',
     posterUrl: 'https://paradox25.netlify.app/posters/debate.jpg',
     contacts: [
-      { name: 'BHAVYA', phone: '7510695281' },
-      { name: 'COORDINATOR', phone: '9876543210' }
+      { name: 'Nandana Suresh', phone: '88506257' },
+      { name: 'Ansila Husain', phone: '6282797304' }
     ]
   },
   {
@@ -284,8 +289,8 @@ export const EVENTS = [
     prizePool: '3500',
     posterUrl: 'https://paradox25.netlify.app/posters/debate.jpg',
     contacts: [
-      { name: 'BOOMIKA', phone: '7034958002' },
-      { name: 'COORDINATOR', phone: '9876543210' }
+      { name: 'Ashitha Mary Chacko', phone: '6282703442' },
+      { name: 'Roshan Rajesh', phone: '8921182286' }
     ]
   },
   {
@@ -298,19 +303,28 @@ export const EVENTS = [
     status: 'Register Now',
     description: 'A battle of wits testing technical trivia, science, pop culture, and rapid-fire general awareness.',
     guidelines: [
-      'Team size: 2 members.',
-      'Preliminary written elimination round followed by on-stage finals.',
-      'Rounds include: Tech Trivia, Audio-Visual round, and Rapid Fire.',
-      'Quizmaster decision is indisputable.'
-    ],
+  'All participants must compete in teams.',
+  'Each team must consist of exactly 2 members.',
+  'Participants must register before the specified deadline.',
+  'Questions will be asked by the Quizmaster.',
+  'Each question has only one correct answer unless stated otherwise.',
+  'Participants must answer within the given time.',
+  'Each correct answer carries 1 mark, while a wrong answer carries 0 marks.',
+  'Mobile phones, smartwatches, internet searches, books, or other reference materials are not permitted unless specifically allowed by the organizers.',
+  'If two or more teams have the same final score, a tie-breaker round will be conducted.',
+  'The decision of the Quizmaster regarding the tie-breaker will be final.',
+  'Participants must maintain silence while questions are being asked.',
+  'Communicating answers to other teams is prohibited.',
+  'Any form of cheating may result in disqualification.'
+],
     date: '7/10/2025',
     time: '10:30 AM - 12:30 PM',
     venue: 'Auditorium 2',
     prizePool: '2000',
     posterUrl: 'https://paradox25.netlify.app/posters/debate.jpg',
     contacts: [
-      { name: 'BHAVYA', phone: '7510695281' },
-      { name: 'COORDINATOR', phone: '9876543210' }
+      { name: 'Aleena thomas', phone: '7736962141' },
+      { name: 'Anagha E D', phone: '9656350185' }
     ]
   },
   {
@@ -359,8 +373,8 @@ export const EVENTS = [
     prizePool: '4000',
     posterUrl: 'https://paradox25.netlify.app/posters/debate.jpg',
     contacts: [
-      { name: 'BHAVYA', phone: '7510695281' },
-      { name: 'BOOMIKA', phone: '7034958002' }
+      { name: 'Jeswin', phone: '9567692925' },
+      { name: 'Gayathri', phone: '8304855056' }
     ]
   },
   {
@@ -384,8 +398,8 @@ export const EVENTS = [
     prizePool: '3000',
     posterUrl: 'https://paradox25.netlify.app/posters/debate.jpg',
     contacts: [
-      { name: 'BHAVYA', phone: '7510695281' },
-      { name: 'COORDINATOR', phone: '9876543210' }
+      { name: 'Akhilraj', phone: '9495382335' },
+      { name: 'Basith Ahmed', phone: '7736789331' }
     ]
   },
   {
@@ -409,8 +423,7 @@ export const EVENTS = [
     prizePool: '2000',
     posterUrl: 'https://paradox25.netlify.app/posters/debate.jpg',
     contacts: [
-      { name: 'BOOMIKA', phone: '7034958002' },
-      { name: 'COORDINATOR', phone: '9876543210' }
+      { name: 'Niran tom', phone: '8891665532' }
     ]
   },
   {
@@ -434,8 +447,8 @@ export const EVENTS = [
     prizePool: '3000',
     posterUrl: 'https://paradox25.netlify.app/posters/debate.jpg',
     contacts: [
-      { name: 'BHAVYA', phone: '7510695281' },
-      { name: 'COORDINATOR', phone: '9876543210' }
+      { name: 'Grace Mary Thomas', phone: '8891254505' },
+      { name: 'Soumya Mohan', phone: '8547540739' }
     ]
   },
   {
@@ -459,8 +472,8 @@ export const EVENTS = [
     prizePool: '2500',
     posterUrl: 'https://paradox25.netlify.app/posters/debate.jpg',
     contacts: [
-      { name: 'BOOMIKA', phone: '7034958002' },
-      { name: 'COORDINATOR', phone: '9876543210' }
+      { name: 'Anna Alphonse Mani', phone: '9544971069' },
+      { name: 'Annu Siby', phone: '8590927649' }
     ]
   },
   {
@@ -497,20 +510,26 @@ export const EVENTS = [
     type: 'Presentation',
     status: 'Register Now',
     description: 'Craft and deliver an engaging presentation deck on a surprise topic revealed on the spot.',
-    guidelines: [
-      'Topics revealed on the spot from technology, society, or modern trends.',
-      'Preparation time: 45 minutes to design up to 6 slides.',
-      'Presentation time: 4 minutes followed by 2 minutes Q&A.',
-      'Evaluation criteria: Clarity, deck aesthetics, confidence, and answering capability.'
-    ],
+   guidelines: [
+  'This is an individual event; each participant must compete individually.',
+  'The topic will be revealed on the spot and may be from technology, society, or modern trends.',
+  'Preparation time is 30 minutes, including topic discussion, research, and PPT creation.',
+  'AI tools are allowed for research and PPT preparation.',
+  'The PPT must contain exactly 6 content slides, excluding the Title and Thank You slides.',
+  'Participants must upload the final PPT to the provided folder within the 30-minute preparation time.',
+  'No changes or additions to the PPT are allowed after the preparation time ends.',
+  'Each participant will have 7 minutes for the presentation.',
+  'Participants should use reliable sources and verify any AI-generated information.',
+  'Participants must strictly follow the allotted time limit.'
+],
     date: '7/10/2025',
     time: '11:30 AM - 01:30 PM',
     venue: 'CSLH2',
     prizePool: '2000',
     posterUrl: 'https://paradox25.netlify.app/posters/debate.jpg',
     contacts: [
-      { name: 'BOOMIKA', phone: '7034958002' },
-      { name: 'COORDINATOR', phone: '9876543210' }
+      { name: 'Nishanth Abraham Koshy', phone: '9383402043' },
+      { name: 'Emil Elsa Biji', phone: '7034704236' }
     ]
   },
   {
@@ -534,8 +553,8 @@ export const EVENTS = [
     prizePool: '2000',
     posterUrl: 'https://paradox25.netlify.app/posters/debate.jpg',
     contacts: [
-      { name: 'BHAVYA', phone: '7510695281' },
-      { name: 'COORDINATOR', phone: '9876543210' }
+      { name: 'Niranjana M', phone: '8848776638' },
+      { name: 'NAISHANA FATHIMA KS', phone: '8590675895' }
     ]
   },
   {
@@ -559,8 +578,8 @@ export const EVENTS = [
     prizePool: '2000',
     posterUrl: 'https://paradox25.netlify.app/posters/debate.jpg',
     contacts: [
-      { name: 'BHAVYA', phone: '7510695281' },
-      { name: 'BOOMIKA', phone: '7034958002' }
+      { name: 'Ajay Krishna AP', phone: '8848608233' },
+      { name: 'Arya C Anish', phone: '7592815138' }
     ]
   }
 ];
@@ -583,15 +602,17 @@ export const HACKATHON_EVENT = {
     'Use of public open-source libraries and APIs is allowed with proper credit.',
     'Evaluation is based on Innovation, Technical Depth, UI/UX Design, Feasibility, and the Final Pitch.'
   ],
-  date: 'October 10-11, 2025',
-  time: '09:00 AM - 05:30 PM',
+  date: 'September 17, 2026',
+  time: '08:30 AM - 04:00 PM',
   venue: 'College of Engineering Kidangoor',
   prizePool: '10000',
+  fee: '₹29 / member',
+  regFee: '₹29 / member',
   posterUrl: 'https://paradox25.netlify.app/_next/image?url=%2Fposters%2Fcchallenge.png&w=1920&q=75',
   contacts: [
-    { name: 'HACKATHON LEAD', phone: '+91 6238 128 951' },
-    { name: 'COORDINATOR', phone: '+91 81389 77809' }
-  ],
+      { name: 'S Sreenandan', phone: '+91 9567528609' },
+      { name: 'Anna Rose Dolfy', phone: '+91 8304959545' }
+    ],
   customFields: [
     { id: 'teamName', label: 'Team Name', type: 'text', required: true },
     { id: 'teamSize', label: 'Team Size (2-4)', type: 'select', options: '2 Members, 3 Members, 4 Members', required: true },

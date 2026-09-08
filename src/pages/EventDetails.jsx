@@ -56,7 +56,7 @@ const EventDetails = () => {
     <div className="w-full min-h-screen bg-[var(--color-bg-dark)] pt-32 pb-24 relative overflow-hidden">
       
       {/* Dynamic Ambient Glow based on page */}
-      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[radial-gradient(circle,rgba(255,51,0,0.05)_0%,transparent_70%)] pointer-events-none rounded-full blur-[80px] z-0 mix-blend-screen"></div>
+      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[radial-gradient(circle,rgba(255,51,0,0.05)_0%,transparent_70%)] pointer-events-none rounded-full blur-[30px] z-0 "></div>
 
       <div className="max-w-[1400px] mx-auto px-6 lg:px-12 relative z-10">
         
@@ -100,11 +100,11 @@ const EventDetails = () => {
             transition={{ delay: 0.2 }}
             className="lg:col-span-7 flex flex-col"
           >
-            {/* Ultra-premium Ambilight Poster Container - Reduced height */}
-            <div className="relative w-full h-[400px] md:h-[500px] lg:h-[550px] rounded-[32px] overflow-hidden border border-white/5 bg-black/40 flex items-center justify-center p-6 group">
+            {/* Ultra-premium Ambilight Poster Container - Fits perfectly to image ratio */}
+            <div className="relative w-fit h-fit mx-auto flex items-center justify-center group">
               {/* Blurred background duplicate for glowing edge effect */}
               <div 
-                className="absolute inset-0 opacity-40 blur-[100px] scale-110 group-hover:opacity-60 transition-opacity duration-700" 
+                className="absolute inset-4 opacity-40 blur-[60px] md:blur-[80px] scale-110 group-hover:opacity-60 transition-opacity duration-700" 
                 style={{ backgroundImage: `url(${event.posterUrl})`, backgroundPosition: 'center', backgroundSize: 'cover' }}
               ></div>
               
@@ -119,7 +119,7 @@ const EventDetails = () => {
                 src={event.posterUrl}
                 alt={event.title}
                 onLoad={() => setIsImageLoaded(true)}
-                className={`relative z-10 w-full h-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-lg group-hover:scale-[1.02] transition-all duration-700 ${isImageLoaded ? 'opacity-100' : 'opacity-0 scale-95'}`}
+                className={`relative z-10 w-auto h-auto max-w-full max-h-[400px] md:max-h-[500px] lg:max-h-[550px] object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-xl sm:rounded-2xl lg:rounded-[32px] group-hover:scale-[1.02] transition-all duration-700 ${isImageLoaded ? 'opacity-100' : 'opacity-0 scale-95'}`}
               />
             </div>
           </motion.div>
@@ -183,11 +183,16 @@ const EventDetails = () => {
               {/* Event Coordinators */}
               <div>
                 <h4 className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-3">Coordinators</h4>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-3">
                   {(event.contacts || []).map((contact, idx) => (
-                    <a key={idx} href={`tel:${contact.phone}`} className="flex items-center gap-2 bg-white/5 hover:bg-white/10 transition-colors rounded-full px-4 py-2 border border-white/10 group">
-                      <Phone className="w-3 h-3 text-gray-400 group-hover:text-[var(--color-primary)] transition-colors" />
-                      <span className="text-white text-[11px] font-bold tracking-wider">{contact.name}</span>
+                    <a key={idx} href={`tel:${contact.phone}`} className="flex items-center gap-3 bg-[#111111] hover:bg-[#1a1a1a] transition-colors rounded-full pl-2 pr-4 py-2 border border-white/5 group shadow-sm">
+                      <div className="w-8 h-8 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center shrink-0">
+                        <Phone className="w-3.5 h-3.5 text-[var(--color-primary)] group-hover:scale-110 transition-transform" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-white text-[11px] font-bold tracking-wider leading-none mb-1">{contact.name}</span>
+                        <span className="text-gray-400 text-[10px] font-medium leading-none">{contact.phone}</span>
+                      </div>
                     </a>
                   ))}
                 </div>

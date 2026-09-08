@@ -28,18 +28,18 @@ const AboutSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.7, ease: "easeOut" }}
-            className="lg:col-span-5 w-full relative overflow-hidden flex items-center justify-center p-2 group"
+            className="lg:col-span-5 w-full relative flex items-center justify-center group"
           >
             {/* Glowing ambient background based on image */}
             <div 
-              className="absolute inset-0 opacity-30 blur-[80px] scale-110 group-hover:opacity-50 transition-opacity duration-700" 
+              className="absolute inset-4 opacity-30 blur-[40px] md:blur-[50px] scale-110 group-hover:opacity-50 transition-opacity duration-700" 
               style={{ backgroundImage: `url(${aboutPoster})`, backgroundPosition: 'center', backgroundSize: 'cover' }}
             ></div>
 
             <img 
               src={aboutPoster} 
               alt="Paradox 26 Tech Fest Poster" 
-              className="relative z-10 w-full h-auto object-cover rounded-[32px] border border-white/5 drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] group-hover:scale-[1.02] transition-transform duration-700"
+              className="relative z-10 w-full h-auto max-w-md lg:max-w-full object-cover rounded-[32px] border border-white/5 drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] group-hover:scale-[1.02] transition-transform duration-700"
             />
           </motion.div>
 
@@ -115,7 +115,7 @@ const AboutSection = () => {
                     <div className="text-[10px] font-bold text-white/80 uppercase tracking-widest border border-white/20 px-2 py-1 rounded">Paradox Fact</div>
                     <div className="text-[10px] text-white/80">14/09</div>
                   </div>
-                  <div className="text-5xl font-sans font-bold text-white mb-2">8h</div>
+                  <div className="text-5xl font-sans font-bold text-white mb-2">6h</div>
                   <div className="text-xs text-white/90 leading-relaxed">
                     Non-stop coding and innovation in our flagship hackathon event.
                   </div>

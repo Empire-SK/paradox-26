@@ -2,35 +2,41 @@ import { Menu, X, ChevronRight } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import heroImage from '../assets/logo.png';
+import pdoxLogo from '../assets/pdox.png';
 
 const Navbar = () => {
   const { pathname } = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const lastScrollY = React.useRef(0);
+  const ticking = React.useRef(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      if (currentScrollY < 100) {
-        setIsVisible(true);
-        setIsScrolled(false);
-      } else {
-        setIsScrolled(true);
-        if (currentScrollY > lastScrollY) {
-          setIsVisible(false); // Hide on scroll down
-        } else {
-          setIsVisible(true);  // Show on scroll up
-        }
+      if (!ticking.current) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          
+          if (currentScrollY < 100) {
+            setIsVisible(true);
+            setIsScrolled(false);
+          } else {
+            setIsScrolled(true);
+            if (Math.abs(currentScrollY - lastScrollY.current) > 8) {
+              setIsVisible(currentScrollY < lastScrollY.current);
+            }
+          }
+          lastScrollY.current = currentScrollY;
+          ticking.current = false;
+        });
+        ticking.current = true;
       }
-      setLastScrollY(currentScrollY);
     };
 
     const handleMouseMove = (e) => {
       if (e.clientY < 80) {
-        setIsVisible(true); // Pop up when mouse is near top
+        setIsVisible(true);
       }
     };
 
@@ -41,7 +47,7 @@ const Navbar = () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('mousemove', handleMouseMove);
     };
-  }, [lastScrollY]);
+  }, []);
 
   return (
     <>
@@ -53,9 +59,13 @@ const Navbar = () => {
         <div className="max-w-[1600px] mx-auto px-6 h-20 flex items-center justify-between">
           
           {/* Left: Brand */}
-          <Link to="/" className="flex items-center gap-3 no-underline">
-            {/* Imitating the Fluxora logo with Paradox logo */}
-            <img src={heroImage} alt="Paradox Logo" className="h-8 w-auto filter drop-shadow-[0_0_8px_rgba(255,51,0,0.6)]" />
+          <Link to="/" className="flex items-center gap-3 no-underline relative group">
+            <div className="relative flex items-center justify-center">
+              <img src={heroImage} alt="Paradox Logo Text" className="h-8 w-auto filter drop-shadow-[0_0_8px_rgba(255,51,0,0.6)]" />
+              <div className="absolute h-[80%] w-auto flex items-center justify-center" style={{ left: '76%', top: '50%', transform: 'translate(-50%, -50%)' }}>
+                <img src={pdoxLogo} alt="O" className="h-full w-auto animate-[spin_4s_linear_infinite]" />
+              </div>
+            </div>
           </Link>
           
           {/* Center: Navigation Pill Container */}
@@ -107,8 +117,13 @@ const Navbar = () => {
             
             {/* Header */}
             <div className="flex items-center justify-between mb-12">
-              <img src={heroImage} alt="Logo" className="h-8 w-auto opacity-90" />
-              <button 
+              <div className="relative flex items-center justify-center opacity-90">
+                <img src={heroImage} alt="Paradox Logo Text" className="h-8 w-auto filter drop-shadow-[0_0_8px_rgba(255,51,0,0.6)]" />
+                <div className="absolute h-[80%] w-auto flex items-center justify-center" style={{ left: '76%', top: '50%', transform: 'translate(-50%, -50%)' }}>
+                  <img src={pdoxLogo} alt="O" className="h-full w-auto animate-[spin_4s_linear_infinite]" />
+                </div>
+              </div>
+              <button
                 onClick={() => setIsOpen(false)}
                 className="text-white hover:text-[var(--color-primary)] transition-colors relative w-10 h-10 flex items-center justify-center opacity-80 hover:opacity-100"
               >

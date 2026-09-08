@@ -68,7 +68,7 @@ function App() {
             <img 
               src={pdoxLogo} 
               alt="Paradox Logo" 
-              className="w-16 h-16 relative z-10 animate-pulse drop-shadow-[0_0_10px_rgba(255,51,0,0.8)]"
+              className="w-16 h-16 relative z-10 animate-[spin_3s_linear_infinite] drop-shadow-[0_0_10px_rgba(255,51,0,0.8)]"
             />
           </div>
 
@@ -86,19 +86,19 @@ function App() {
       {/* Professional Aesthetic Background */}
       <div className="fixed inset-0 w-full h-full pointer-events-none z-[-2] overflow-hidden bg-[var(--color-bg-dark)]">
         
-        {/* SVG Noise Texture for Premium Matte Finish */}
-        <div className="absolute inset-0 opacity-[0.015] mix-blend-screen" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.85%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }}></div>
+        {/* SVG Noise Texture for Premium Matte Finish - Desktop Only */}
+        <div className="hidden md:block absolute inset-0 opacity-[0.015]" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.85%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }}></div>
 
         {/* Subtle grid pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] opacity-30 mix-blend-overlay"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] opacity-30"></div>
         
         {/* Vignette for depth */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.8)_100%)] mix-blend-multiply"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.8)_100%)]"></div>
         
         {/* Ambient Glowing Orbs */}
-        <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] bg-[radial-gradient(circle,rgba(255,51,0,0.05)_0%,transparent_60%)] animate-pulse-slow rounded-full mix-blend-screen pointer-events-none"></div>
-        <div className="absolute top-[30%] right-[-20%] w-[70vw] h-[70vw] bg-[radial-gradient(circle,rgba(255,107,0,0.04)_0%,transparent_60%)] animate-float rounded-full mix-blend-screen pointer-events-none" style={{ animationDelay: '-2s', animationDuration: '8s' }}></div>
-        <div className="absolute bottom-[-20%] left-[20%] w-[50vw] h-[50vw] bg-[radial-gradient(circle,rgba(255,51,0,0.03)_0%,transparent_60%)] rounded-full mix-blend-screen pointer-events-none"></div>
+        <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] bg-[radial-gradient(circle,rgba(255,51,0,0.05)_0%,transparent_60%)] md:animate-pulse-slow rounded-full pointer-events-none"></div>
+        <div className="absolute top-[30%] right-[-20%] w-[70vw] h-[70vw] bg-[radial-gradient(circle,rgba(255,107,0,0.04)_0%,transparent_60%)] md:animate-float rounded-full pointer-events-none" style={{ animationDelay: '-2s', animationDuration: '8s' }}></div>
+        <div className="absolute bottom-[-20%] left-[20%] w-[50vw] h-[50vw] bg-[radial-gradient(circle,rgba(255,51,0,0.03)_0%,transparent_60%)] rounded-full pointer-events-none"></div>
         
       </div>
 
