@@ -11,7 +11,7 @@ import l8 from '../assets/l8.png';
 
 const otherSponsors = [
   { id: 3, logo: l2, role: 'GAMING PARTNER', name: 'APX KOTTAYAM' },
-  { id: 5, logo: l6, role: 'TECH PARTNER', name: 'KERAKERALA' }
+  { id: 5, logo: l6, role: 'TECH PARTNER', name: 'AL AJMI' }
 ];
 
 const partners = [
